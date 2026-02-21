@@ -545,6 +545,9 @@ ul{list-style:none}
 /* ========================================
    RESPONSIVE
    ======================================== */
+/* Body scroll lock when mobile menu is open */
+body.menu-open{overflow:hidden}
+
 @media(max-width:1024px){
   .contained{margin:0 16px 16px;padding:56px 32px}
   .bento-grid{grid-template-columns:repeat(2,1fr)}
@@ -555,18 +558,34 @@ ul{list-style:none}
   .hero-stats{gap:32px}
 }
 @media(max-width:768px){
-  .nav-links,.nav-actions .login-link{display:none}
+  /* Nav: hide links + demo button, show hamburger only */
+  .nav-links,.nav-actions{display:none}
   .nav-hamburger{display:flex}
-  .nav-actions .btn{padding:8px 18px;font-size:.8rem}
+  .nav-pill{padding:0 16px}
+  /* Mobile menu — dynamic positioning */
+  .mobile-menu{top:68px;left:16px;right:16px}
+  .nav.scrolled ~ .mobile-menu{top:56px}
   .hero{min-height:auto;padding:120px 0 60px}
   .hero-content h1{font-size:2.2rem}
   .hero-stats{flex-direction:column;gap:16px;align-items:center}
-  .slides-wrapper{height:250px}
+  /* Slideshow — auto height instead of fixed */
+  .slides-wrapper{height:auto;min-height:200px}
+  .slide{position:relative;display:none}
+  .slide.active{display:flex}
   .bento-grid{grid-template-columns:1fr}
   .contained{margin:0 12px 12px;padding:40px 20px}
+  /* Comparison table — scrollable with hint */
+  .comp-table-wrap{position:relative;-webkit-overflow-scrolling:touch}
+  .comp-table{min-width:520px}
+  .comp-table thead th:first-child{width:160px;position:sticky;left:0;z-index:1;background:var(--surface)}
+  .comp-table tbody td:first-child{position:sticky;left:0;z-index:1;background:var(--surface)}
+  /* API code block */
+  .api-code{font-size:.72rem;padding:16px 18px;line-height:1.7}
+  /* Partners strip */
   .partners-strip{gap:20px}
   .partner-text{font-size:.9rem}
   .partner-dot{display:none}
+  .partner-logo{height:22px}
   .stat-row{flex-direction:column;align-items:center}
   .stat-card{max-width:100%;width:100%}
   .footer{padding:32px 16px 24px;margin-top:24px}
@@ -578,10 +597,15 @@ ul{list-style:none}
   .footer-bottom{justify-content:center;text-align:center;flex-direction:column}
   .footer-legal{justify-content:center}
   .decor-dots,.decor-ring,.decor-cross,.decor-diamond,.decor-bar,.decor-glow{display:none}
+  /* Demo form — stack 2-col grids */
+  .demo-form [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
 }
 @media(max-width:480px){
   .hero-ctas{flex-direction:column;align-items:center}
   .hero-ctas .btn{width:100%;max-width:280px}
-  .slides-wrapper{height:280px}
   .slide-stat{font-size:2.5rem}
+  .section-title{font-size:1.6rem}
+  .page-hero h1{font-size:1.8rem}
+  .page-hero{padding:120px 0 40px}
+  .contained{padding:32px 16px}
 }
