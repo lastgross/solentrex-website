@@ -271,23 +271,23 @@ ul{list-style:none}
    PARTNERS STRIP
    ======================================== */
 .partners-strip-section{
-  text-align:center;padding:48px 24px;
+  text-align:center;padding:64px 24px;
   max-width:1200px;margin:0 auto 20px;
 }
 .partners-label{
-  font-size:.72rem;text-transform:uppercase;letter-spacing:2.5px;
-  color:var(--text-muted);margin-bottom:28px;font-weight:500;
+  font-size:.82rem;text-transform:uppercase;letter-spacing:2.5px;
+  color:var(--text-primary);margin-bottom:36px;font-weight:600;
 }
 .partners-strip{
-  display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;
+  display:flex;align-items:center;justify-content:center;gap:52px;flex-wrap:wrap;
 }
 .partner-text{
   font-size:1.1rem;font-weight:700;letter-spacing:.3px;
   color:rgba(255,255,255,.25);transition:color .3s;
 }
 .partner-text:hover{color:var(--orange)}
-.partner-logo{height:22px;opacity:.3;transition:opacity .3s;filter:brightness(0) invert(1)}
-.partner-logo:hover{opacity:.7}
+.partner-logo{height:28px;opacity:.45;transition:opacity .3s;filter:brightness(0) invert(1)}
+.partner-logo:hover{opacity:.8}
 .partner-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.1);flex-shrink:0}
 
 /* ========================================
