@@ -545,11 +545,10 @@ ul{list-style:none}
 /* ========================================
    RESPONSIVE
    ======================================== */
-/* Body scroll lock when mobile menu is open */
 body.menu-open{overflow:hidden}
 
 @media(max-width:1024px){
-  .contained{margin:0 16px 16px;padding:56px 32px}
+  .contained{margin:0 16px 20px;padding:56px 32px}
   .bento-grid{grid-template-columns:repeat(2,1fr)}
   .bento-card.span-2{grid-column:span 1}
   .api-inner{flex-direction:column;gap:32px}
@@ -557,55 +556,138 @@ body.menu-open{overflow:hidden}
   .feature-row,.feature-row:nth-child(even){flex-direction:column;gap:32px}
   .hero-stats{gap:32px}
 }
+
 @media(max-width:768px){
-  /* Nav: hide links + demo button, show hamburger only */
+  /* --- NAV --- */
   .nav-links,.nav-actions{display:none}
   .nav-hamburger{display:flex}
   .nav-pill{padding:0 16px}
-  /* Mobile menu — dynamic positioning */
   .mobile-menu{top:68px;left:16px;right:16px}
   .nav.scrolled ~ .mobile-menu{top:56px}
-  .hero{min-height:auto;padding:120px 0 60px}
-  .hero-content h1{font-size:2.2rem}
-  .hero-stats{flex-direction:column;gap:16px;align-items:center}
-  /* Slideshow — auto height instead of fixed */
-  .slides-wrapper{height:auto;min-height:200px}
+
+  /* --- HERO — more breathing room --- */
+  .hero{min-height:auto;padding:110px 0 56px}
+  .hero-content h1{font-size:2rem;margin-bottom:12px}
+  .hero-content .sub{font-size:.9rem;margin-bottom:4px}
+  .hero-content .tagline{font-size:.9rem;margin-bottom:32px}
+  .hero-stats{
+    flex-direction:row;flex-wrap:wrap;gap:12px;
+    justify-content:center;margin-top:48px;padding-top:28px;
+  }
+  .hero-stat{flex:1;min-width:120px}
+  .hero-stat .num{font-size:1.3rem}
+  .hero-stat .label{font-size:.7rem}
+
+  /* --- SLIDESHOW — auto height --- */
+  .slides-wrapper{height:auto;min-height:180px}
   .slide{position:relative;display:none}
   .slide.active{display:flex}
-  .bento-grid{grid-template-columns:1fr}
-  .contained{margin:0 12px 12px;padding:40px 20px}
-  /* Comparison table — scrollable with hint */
-  .comp-table-wrap{position:relative;-webkit-overflow-scrolling:touch}
-  .comp-table{min-width:520px}
-  .comp-table thead th:first-child{width:160px;position:sticky;left:0;z-index:1;background:var(--surface)}
-  .comp-table tbody td:first-child{position:sticky;left:0;z-index:1;background:var(--surface)}
-  /* API code block */
+  .slide p{font-size:.88rem}
+
+  /* --- BENTO --- */
+  .bento-grid{grid-template-columns:1fr;gap:12px}
+  .bento-card{padding:24px 20px}
+  .bento-card p{font-size:.85rem}
+
+  /* --- CONTAINED SECTIONS — generous spacing --- */
+  .contained{margin:0 12px 16px;padding:48px 24px}
+  .section-sub{font-size:.92rem}
+
+  /* --- COMPARISON TABLE → CARD LAYOUT --- */
+  .comp-table-wrap{overflow:visible}
+  .comp-table,.comp-table thead,.comp-table tbody,.comp-table tr,.comp-table th,.comp-table td{
+    display:block;width:100%;
+  }
+  .comp-table thead{display:none}
+  .comp-table tbody tr{
+    background:var(--surface-2);border:1px solid rgba(255,255,255,.06);
+    border-radius:12px;padding:20px;margin-bottom:12px;
+  }
+  .comp-table tbody tr:hover{background:var(--surface-2)}
+  .comp-table tbody td{
+    padding:6px 0;border-bottom:none;display:flex;justify-content:space-between;align-items:center;
+    font-size:.85rem;
+  }
+  .comp-table tbody td:first-child{
+    font-size:.92rem;font-weight:700;color:var(--white);
+    margin-bottom:8px;padding-bottom:10px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    display:block;
+  }
+  /* Label the values */
+  .comp-table tbody td:nth-child(2)::before{
+    content:'Solentrex';font-size:.7rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:1px;color:var(--orange);
+  }
+  .comp-table tbody td:nth-child(3)::before{
+    content:'Industry';font-size:.7rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);
+  }
+
+  /* --- API --- */
   .api-code{font-size:.72rem;padding:16px 18px;line-height:1.7}
-  /* Partners strip */
-  .partners-strip{gap:20px}
-  .partner-text{font-size:.9rem}
+
+  /* --- PARTNERS --- */
+  .partners-strip-section{padding:40px 16px}
+  .partners-strip{gap:24px}
+  .partner-text{font-size:.85rem}
   .partner-dot{display:none}
-  .partner-logo{height:22px}
-  .stat-row{flex-direction:column;align-items:center}
-  .stat-card{max-width:100%;width:100%}
+  .partner-logo{height:20px}
+
+  /* --- STATS --- */
+  .stat-row{gap:12px}
+  .stat-card{max-width:100%;width:100%;padding:24px 20px}
+  .stat-card .num{font-size:1.6rem}
+
+  /* --- FEATURE ROWS — tighter on mobile --- */
+  .feature-row{padding:32px 0;gap:24px}
+  .feature-row .text h3{font-size:1.2rem}
+  .feature-row .text p{font-size:.88rem}
+  .feature-row .visual{min-height:180px}
+
+  /* --- FOOTER --- */
   .footer{padding:32px 16px 24px;margin-top:24px}
-  .footer-top{grid-template-columns:1fr;text-align:center}
+  .footer-top{grid-template-columns:1fr;gap:32px;text-align:center}
   .footer-brand{align-items:center}
   .footer-brand .footer-tagline{max-width:100%}
   .footer-nav,.footer-contact{text-align:center}
   .footer-socials{justify-content:center}
   .footer-bottom{justify-content:center;text-align:center;flex-direction:column}
   .footer-legal{justify-content:center}
-  .decor-dots,.decor-ring,.decor-cross,.decor-diamond,.decor-bar,.decor-glow{display:none}
-  /* Demo form — stack 2-col grids */
+
+  /* --- CTA --- */
+  .cta-contained h2{font-size:1.5rem}
+  .cta-contained p{font-size:.9rem;margin-bottom:24px}
+
+  /* --- DEMO FORM --- */
   .demo-form [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+
+  /* --- PAGE HERO (inner pages) --- */
+  .page-hero{padding:110px 0 40px}
+  .page-hero h1{font-size:1.8rem}
+  .page-hero p{font-size:.92rem}
+
+  /* --- HIDE DECORATIVES --- */
+  .decor-dots,.decor-ring,.decor-cross,.decor-diamond,.decor-bar,.decor-glow{display:none}
 }
+
 @media(max-width:480px){
+  .hero{padding:100px 0 48px}
+  .hero-content h1{font-size:1.75rem}
   .hero-ctas{flex-direction:column;align-items:center}
   .hero-ctas .btn{width:100%;max-width:280px}
-  .slide-stat{font-size:2.5rem}
-  .section-title{font-size:1.6rem}
-  .page-hero h1{font-size:1.8rem}
-  .page-hero{padding:120px 0 40px}
-  .contained{padding:32px 16px}
+  .hero-stats{gap:8px}
+  .hero-stat{min-width:calc(50% - 8px)}
+  .slide-stat{font-size:2.2rem}
+  .section-title{font-size:1.4rem}
+  .section-label{font-size:.65rem}
+  .contained{margin:0 8px 12px;padding:36px 16px}
+  .page-hero h1{font-size:1.5rem}
+  .page-hero{padding:100px 0 32px}
+  .bento-card{padding:20px 16px}
+  .comp-table tbody tr{padding:16px}
+  .comp-table tbody td{font-size:.8rem}
+  .partners-strip{gap:16px}
+  .partner-logo{height:16px}
+  .footer-top{gap:24px}
 }
