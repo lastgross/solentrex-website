@@ -153,8 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const decors = document.querySelectorAll('.decor-glow, .decor-dots, .decor-ring, .decor-bar, .decor-diamond, .decor-cross');
   if (decors.length) {
     window.addEventListener('scroll', () => {
-      const y = window.scrollY * -0.15;
-      decors.forEach(el => { el.style.transform = 'translateY(' + y + 'px)'; });
+      const y = window.scrollY * -0.2;
+      decors.forEach(el => { el.style.marginTop = y + 'px'; });
     }, { passive: true });
   }
 
