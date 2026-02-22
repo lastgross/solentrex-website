@@ -34,10 +34,16 @@
   --radius-lg:24px;
 }
 
-html{scroll-behavior:smooth;font-size:16px}
+html{scroll-behavior:smooth;font-size:16px;background:none}
 body{
+  position:relative;
   font-family:'Montserrat',system-ui,sans-serif;
-  background:var(--canvas);color:var(--text-primary);
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 60%,rgba(2,88,168,.2),transparent),
+    radial-gradient(ellipse 60% 40% at 80% 30%,rgba(245,127,6,.12),transparent),
+    radial-gradient(ellipse 50% 50% at 50% 80%,rgba(43,125,233,.08),transparent),
+    var(--canvas);
+  color:var(--text-primary);
   line-height:1.6;-webkit-font-smoothing:antialiased;
   overflow-x:hidden;
 }
@@ -190,22 +196,19 @@ ul{list-style:none}
    ======================================== */
 .hero{
   position:relative;min-height:100vh;display:flex;align-items:center;
-  padding:140px 0 100px;overflow:hidden;
-  /* Multi-color mesh gradient like Stripe */
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 60%,rgba(2,88,168,.2),transparent),
-    radial-gradient(ellipse 60% 40% at 80% 30%,rgba(245,127,6,.12),transparent),
-    radial-gradient(ellipse 50% 50% at 50% 80%,rgba(43,125,233,.08),transparent),
-    var(--canvas);
+  padding:140px 0 100px;
+  /* Background now handled by full-page JS overlay on home */
+  background:transparent;
 }
-.hero-grid{
-  position:absolute;inset:0;
+.hero-grid{display:none}
+.fullpage-grid{
+  position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;
   background:
     linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
   background-size:64px 64px;
-  mask-image:radial-gradient(ellipse 60% 50% at 50% 40%,black 10%,transparent 70%);
-  -webkit-mask-image:radial-gradient(ellipse 60% 50% at 50% 40%,black 10%,transparent 70%);
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,black 5%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%,black 5%,transparent 80%);
   animation:gridShift 30s linear infinite;
 }
 @keyframes gridShift{from{background-position:0 0}to{background-position:64px 64px}}
