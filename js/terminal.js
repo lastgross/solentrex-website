@@ -106,8 +106,10 @@
     run(calls[cc], function() { cc = (cc + 1) % calls.length; cy(); });
   }
 
-  var ob = new IntersectionObserver(function(e) {
-    if (e[0].isIntersecting && !on) { on = true; cy(); }
-  }, { threshold: 0.2 });
-  ob.observe(tb);
+  setTimeout(function() {
+    var ob = new IntersectionObserver(function(e) {
+      if (e[0].isIntersecting && !on) { on = true; cy(); }
+    }, { threshold: 0.2 });
+    ob.observe(tb);
+  }, 500);
 })();
