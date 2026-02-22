@@ -5,6 +5,46 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // --- Page background treatments ---
+  // Detect page by URL and inject a fixed overlay for visual depth
+  (function() {
+    var path = window.location.pathname.toLowerCase();
+    var bg = null;
+
+    if (path === '/' || path === '/home' || path.indexOf('index') !== -1 || path.indexOf('home') !== -1) {
+      // Home — radial glows
+      bg = 'radial-gradient(ellipse 50% 40% at 15% 30%,rgba(2,88,168,.35),transparent),'
+         + 'radial-gradient(ellipse 40% 35% at 85% 70%,rgba(245,127,6,.3),transparent),'
+         + 'radial-gradient(ellipse 45% 40% at 50% 90%,rgba(43,125,233,.25),transparent)';
+    } else if (path.indexOf('platform') !== -1) {
+      // Platform — dot grid
+      bg = 'radial-gradient(circle,rgba(255,255,255,.25) 1px,transparent 1px)';
+    } else if (path.indexOf('integration') !== -1) {
+      // Integrations — diagonal lines
+      bg = 'repeating-linear-gradient(135deg,rgba(255,255,255,.2) 0px,rgba(255,255,255,.2) 1px,transparent 1px,transparent 40px)';
+    } else if (path.indexOf('partner') !== -1) {
+      // Partners — gradient sweep
+      bg = 'linear-gradient(90deg,rgba(2,88,168,.35) 0%,transparent 40%,transparent 60%,rgba(245,127,6,.3) 100%)';
+    } else if (path.indexOf('about') !== -1) {
+      // About — noise/grain
+      bg = "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+    }
+
+    if (bg) {
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:0;pointer-events:none;background:' + bg + ';';
+      if (path.indexOf('platform') !== -1) {
+        overlay.style.backgroundSize = '32px 32px';
+      }
+      if (path.indexOf('about') !== -1) {
+        overlay.style.backgroundSize = '256px 256px';
+        overlay.style.backgroundRepeat = 'repeat';
+        overlay.style.opacity = '0.5';
+      }
+      document.body.insertBefore(overlay, document.body.firstChild);
+    }
+  })();
+
   // --- Floating pill nav scroll state ---
   const nav = document.querySelector('.nav');
   if (nav) {
