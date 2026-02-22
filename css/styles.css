@@ -576,7 +576,7 @@ ul{list-style:none}
 .integration-card .logo-area span{
   font-size:1.25rem;font-weight:800;color:var(--blue-light);
 }
-.integration-card .logo-area img{height:24px;object-fit:contain}
+.integration-card .logo-area img{height:32px;object-fit:contain}
 .integration-card h3{font-size:1.05rem;color:var(--white);margin-bottom:8px}
 .integration-card p{font-size:.88rem;color:var(--text-muted);line-height:1.65}
 .integration-card .tag{
@@ -784,7 +784,7 @@ body.menu-open{overflow:hidden}
   .integration-card:hover{transform:none;box-shadow:none}
   .integration-card .logo-area{margin-bottom:12px}
   .integration-card .logo-area span{font-size:1.4rem;color:var(--orange)}
-  .integration-card .logo-area img{height:28px;opacity:.8}
+  .integration-card .logo-area img{height:32px;opacity:1}
   .integration-card h3{font-size:1.2rem}
   .integration-card p{font-size:1rem;line-height:1.7}
   .integration-card .tag{font-size:.72rem;margin-top:12px}
