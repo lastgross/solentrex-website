@@ -778,14 +778,9 @@ body.menu-open{overflow:hidden}
   .partner-item:hover .partner-tooltip{transform:none}
   .partner-text{font-size:1rem;color:rgba(255,255,255,.4)}
 
-  /* --- INTEGRATION CARDS — prominent, not hidden --- */
-  .integration-grid{grid-template-columns:1fr;gap:0}
-  .integration-card{
-    background:transparent!important;border:none!important;
-    border-radius:0;padding:24px 0;
-    border-bottom:1px solid rgba(255,255,255,.06)!important;
-  }
-  .integration-card:last-child{border-bottom:none!important}
+  /* --- INTEGRATION CARDS — stack on mobile, keep backgrounds --- */
+  .integration-grid{grid-template-columns:1fr}
+  .integration-card{padding:24px 20px;border-radius:12px}
   .integration-card:hover{transform:none;box-shadow:none}
   .integration-card .logo-area{margin-bottom:12px}
   .integration-card .logo-area span{font-size:1.4rem;color:var(--orange)}
@@ -793,14 +788,6 @@ body.menu-open{overflow:hidden}
   .integration-card h3{font-size:1.2rem}
   .integration-card p{font-size:1rem;line-height:1.7}
   .integration-card .tag{font-size:.72rem;margin-top:12px}
-  .contained.light .integration-card{
-    border-bottom-color:var(--border-light)!important;
-  }
-  /* Warm overrides for flowing integration cards */
-  .warm .integration-card{
-    background:transparent!important;
-    border-bottom-color:var(--border-light)!important;
-  }
 
   /* --- STAT CARDS — center all on mobile --- */
   .stat-row{
