@@ -171,6 +171,60 @@
     </div>
   </div>
 
+  <!-- API TERMINAL -->
+  <div class="contained accent-top-blue" id="api">
+    <div class="decor-glow" style="width:400px;height:400px;top:-80px;right:-80px;background:rgba(43,125,233,.1)"></div>
+    <div class="decor-glow" style="width:250px;height:250px;bottom:-60px;left:-40px;background:rgba(245,127,6,.06)"></div>
+    <div class="api-inner reveal">
+      <div class="api-text">
+        <p class="section-label">Developer-Ready</p>
+        <h2 class="section-title">Bi-Directional APIs</h2>
+        <p class="section-sub">Connect Solentrex to your existing tools. Push and pull data in real-time — CRM sync, lead import, project export, commission reporting. Custom webhooks free of charge.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">
+          <a href="demo.html" class="btn btn-blue">Talk to Our Team</a>
+          <a href="demo.html" class="btn btn-outline">View Docs</a>
+        </div>
+      </div>
+      <div class="api-visual">
+        <div class="api-terminal">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span></span><span></span><span></span></div>
+            <div class="terminal-title">solentrex-api</div>
+          </div>
+          <div class="terminal-body" id="terminal-body">
+            <div class="terminal-line">
+              <span class="terminal-prompt">$</span>
+              <span class="terminal-typed" data-text="curl -X POST https://api.solentrex.com/v1/proposals \"></span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">&gt;</span>
+              <span class="terminal-typed" data-text='  -d &apos;{"address":"123 Solar Ave","bill":185,"finance":"TPO"}&apos;'></span>
+            </div>
+            <div class="terminal-line terminal-blank"></div>
+            <div class="terminal-line terminal-output">
+              <span class="terminal-status">HTTP/1.1 200 OK</span>
+              <span class="terminal-time">42ms</span>
+            </div>
+            <div class="terminal-line terminal-output"><span class="terminal-brace">{</span></div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"system_size"</span>: <span class="terminal-val">8.4</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"panels"</span>: <span class="terminal-val">21</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"annual_production"</span>: <span class="terminal-val">13280</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"monthly_savings"</span>: <span class="terminal-str">"$142.00"</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"year1_savings"</span>: <span class="terminal-str">"$1,704"</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"offset"</span>: <span class="terminal-str">"98.2%"</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"finance"</span>: <span class="terminal-brace">{</span></div>
+            <div class="terminal-line terminal-output">    <span class="terminal-key">"type"</span>: <span class="terminal-str">"TPO"</span>,</div>
+            <div class="terminal-line terminal-output">    <span class="terminal-key">"monthly"</span>: <span class="terminal-str">"$89.00"</span>,</div>
+            <div class="terminal-line terminal-output">    <span class="terminal-key">"escalator"</span>: <span class="terminal-val">1.9</span></div>
+            <div class="terminal-line terminal-output">  <span class="terminal-brace">}</span>,</div>
+            <div class="terminal-line terminal-output">  <span class="terminal-key">"esign_url"</span>: <span class="terminal-str">"https://sign.solentrex.com/p/a8f3..."</span></div>
+            <div class="terminal-line terminal-output"><span class="terminal-brace">}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- FEATURES BENTO (warm cream — high contrast against dark canvas) -->
   <div class="contained warm accent-top">
     <p class="section-label">Platform</p>
@@ -234,37 +288,6 @@
           <tr><td>Pricing</td><td class="hl">Per address — unlimited designs, proposals &amp; contracts</td><td>Per-design or per-seat</td></tr>
         </tbody>
       </table>
-    </div>
-  </div>
-
-  <!-- API (dark) -->
-  <div class="contained accent-top-blue">
-    <div class="decor-glow" style="width:300px;height:300px;top:-50px;right:-50px;background:rgba(43,125,233,.08)"></div>
-    <div class="api-inner reveal">
-      <div class="api-text">
-        <p class="section-label">Developer-Ready</p>
-        <h2 class="section-title">Bi-Directional APIs</h2>
-        <p class="section-sub">Connect Solentrex to your existing tools. Push and pull data in real-time — CRM sync, lead import, project export, commission reporting. Custom webhooks free of charge.</p>
-        <a href="demo.html" class="btn btn-blue" style="margin-top:8px">Talk to Our Team</a>
-      </div>
-      <div class="api-visual">
-        <div class="api-code">
-<span class="cm">// Push a lead, get a proposal</span>
-<span class="kw">POST</span> /api/v1/proposals
-
-{
-  <span class="str">"address"</span>: <span class="str">"123 Solar Ave, Austin TX"</span>,
-  <span class="str">"utility"</span>: <span class="str">"Austin Energy"</span>,
-  <span class="str">"monthly_bill"</span>: <span class="str">185</span>,
-  <span class="str">"finance_type"</span>: <span class="str">"TPO"</span>
-}
-
-<span class="cm">// Full proposal in &lt;60 seconds</span>
-<span class="kw">200 OK</span>
-  system_size, savings, panels,
-  financing, e-sign link
-        </div>
-      </div>
     </div>
   </div>
 

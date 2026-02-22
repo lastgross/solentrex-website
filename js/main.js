@@ -149,6 +149,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // --- Terminal typing animation ---
+  const terminalBody = document.getElementById('terminal-body');
+  if (terminalBody) {
+    const typedEls = terminalBody.querySelectorAll('.terminal-typed');
+    const outputEls = terminalBody.querySelectorAll('.terminal-output');
+    let started = false;
+
+    function runTerminal() {
+      if (started) return;
+      started = true;
+      let delay = 0;
+      const CHAR_SPEED = 18;
+
+      typedEls.forEach((el, i) => {
+        const text = el.getAttribute('data-text');
+        const startAt = delay;
+        el.style.width = '0';
+        setTimeout(() => {
+          let charIdx = 0;
+          const interval = setInterval(() => {
+            charIdx++;
+            el.textContent = text.substring(0, charIdx);
+            el.style.width = 'auto';
+            if (charIdx >= text.length) {
+              clearInterval(interval);
+              el.classList.add('done');
+            }
+          }, CHAR_SPEED);
+        }, startAt);
+        delay += text.length * CHAR_SPEED + 200;
+      });
+
+      // Show output lines after typing finishes
+      delay += 300;
+      outputEls.forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), delay + i * 60);
+      });
+    }
+
+    const termObs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        runTerminal();
+        termObs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    termObs.observe(terminalBody);
+  }
+
   // --- Demo form handler ---
   const demoForm = document.getElementById('demo-form');
   if (demoForm) {
