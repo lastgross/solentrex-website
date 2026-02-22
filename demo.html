@@ -1,42 +1,49 @@
+<!--
+  templateType: page
+  isAvailableForNewContent: true
+  label: Schedule a Demo
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  {{ standard_header_includes }}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schedule a Demo – Solentrex</title>
   <meta name="description" content="Book a walkthrough of the Solentrex platform. See AI-powered solar design, financing, and CRM in action.">
-  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="{{ get_asset_url('solentrex-website/assets/favicon.ico') }}" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="{{ get_asset_url('solentrex-website/css/styles.css') }}">
+  <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
 
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-pill">
-      <a href="index.html" class="nav-logo"><img src="assets/logo.png" alt="Solentrex"></a>
+      <a href="/home" class="nav-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
       <div class="nav-links">
-        <a href="platform.html">Platform</a>
-        <a href="integrations.html">Integrations</a>
-        <a href="partners.html">Partners</a>
-        <a href="about.html">About</a>
+        <a href="/platform">Platform</a>
+        <a href="/integrations">Integrations</a>
+        <a href="/partners">Partners</a>
+        <a href="/about">About</a>
       </div>
       <div class="nav-actions">
         <a href="https://crm.solentrex.com" class="login-link" target="_blank">Login</a>
-        <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
+        <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
       </div>
       <div class="nav-hamburger"><span></span><span></span><span></span></div>
     </div>
   </nav>
   <div class="mobile-menu">
-    <a href="platform.html">Platform</a>
-    <a href="integrations.html">Integrations</a>
-    <a href="partners.html">Partners</a>
-    <a href="about.html">About</a>
+    <a href="/platform">Platform</a>
+    <a href="/integrations">Integrations</a>
+    <a href="/partners">Partners</a>
+    <a href="/about">About</a>
     <a href="https://crm.solentrex.com" target="_blank">Login</a>
-    <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
+    <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
   </div>
 
   <!-- PAGE HERO -->
@@ -52,33 +59,34 @@
 
   <!-- FORM -->
   <div class="contained" style="max-width:680px">
-    <form class="demo-form" id="demo-form">
+    <div class="demo-form" id="demo-panel">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="field">
-          <label for="fname">First Name</label>
-          <input type="text" id="fname" name="fname" required placeholder="John">
+          <label for="df-fname">First Name</label>
+          <input type="text" id="df-fname" autocomplete="off" placeholder="John">
         </div>
         <div class="field">
-          <label for="lname">Last Name</label>
-          <input type="text" id="lname" name="lname" required placeholder="Smith">
+          <label for="df-lname">Last Name</label>
+          <input type="text" id="df-lname" autocomplete="off" placeholder="Smith">
         </div>
       </div>
       <div class="field">
-        <label for="email">Work Email</label>
-        <input type="email" id="email" name="email" required placeholder="john@company.com">
+        <label for="df-email">Work Email</label>
+        <input type="text" id="df-email" autocomplete="off" placeholder="john@company.com">
+        <p id="email-hint" style="display:none;color:#e74c3c;font-size:.8rem;margin-top:4px"></p>
       </div>
       <div class="field">
-        <label for="company">Company Name</label>
-        <input type="text" id="company" name="company" required placeholder="Acme Solar">
+        <label for="df-company">Company Name</label>
+        <input type="text" id="df-company" autocomplete="off" placeholder="Apex Solar Co.">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="field">
-          <label for="phone">Phone</label>
-          <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567">
+          <label for="df-phone">Phone</label>
+          <input type="text" id="df-phone" autocomplete="off" placeholder="(555) 123-4567" maxlength="16">
         </div>
         <div class="field">
-          <label for="role">Your Role</label>
-          <select id="role" name="role">
+          <label for="df-role">Your Role</label>
+          <select id="df-role">
             <option value="">Select...</option>
             <option>Owner / CEO</option>
             <option>VP / Director of Sales</option>
@@ -90,21 +98,153 @@
         </div>
       </div>
       <div class="field">
-        <label for="size">Company Size (installs/month)</label>
-        <select id="size" name="size">
+        <label for="df-size">Company Size (installs/month)</label>
+        <select id="df-size">
           <option value="">Select...</option>
-          <option>1–10</option>
-          <option>11–50</option>
-          <option>51–200</option>
+          <option>1-10</option>
+          <option>11-50</option>
+          <option>51-200</option>
           <option>200+</option>
         </select>
       </div>
       <div class="field">
-        <label for="msg">Anything specific you'd like to see?</label>
-        <textarea id="msg" name="msg" placeholder="e.g., battery proposals, API integration, dealer management..."></textarea>
+        <label for="df-msg">Anything specific you'd like to see?</label>
+        <textarea id="df-msg" autocomplete="off" placeholder="e.g., battery proposals, API integration, dealer management..."></textarea>
       </div>
-      <button type="submit" class="btn btn-orange">Request a Demo</button>
-    </form>
+      <button type="button" class="btn btn-orange" id="demo-btn">Request a Demo</button>
+      <p id="demo-error" style="display:none;text-align:center;color:#e74c3c;font-weight:600;margin-top:16px">Something went wrong. Please try again.</p>
+    </div>
+
+    <!-- CAPTCHA MODAL -->
+    <div id="captcha-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:16px;padding:40px 36px;text-align:center;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <h3 style="margin:0 0 8px;font-family:'Quicksand',sans-serif;font-size:1.3rem;color:#1a1a2e">One last step</h3>
+        <p style="margin:0 0 24px;color:#666;font-size:.95rem">Complete the CAPTCHA to submit your request.</p>
+        <div style="display:inline-block"><div class="g-recaptcha" data-sitekey="6LdR8nMsAAAAAIOGGjc8Kx5phe9AM0QOv4Ws20FW" data-callback="onCaptchaComplete"></div></div>
+        <button type="button" id="captcha-cancel" style="display:block;margin:20px auto 0;background:none;border:none;color:#999;font-size:.9rem;cursor:pointer;text-decoration:underline">Cancel</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div id="demo-success-panel" class="demo-form" style="display:none;text-align:center;padding:60px 30px">
+      <div style="font-size:3rem;margin-bottom:16px">&#10003;</div>
+      <h2 style="font-family:'Quicksand',sans-serif;color:var(--text-dark);margin:0 0 12px;font-size:1.6rem">Thank You!</h2>
+      <p style="color:var(--text-dark-muted);font-size:1.05rem;max-width:400px;margin:0 auto 24px;line-height:1.7">Your demo request has been submitted. We'll review your information and get back to you shortly.</p>
+      <p style="color:var(--text-dark-muted);font-size:.9rem">Expect to hear from us within 1 business day.</p>
+    </div>
+    <script>
+    // Auto-format phone: (555) 123-4567
+    document.getElementById('df-phone').addEventListener('input', function(e) {
+      var x = e.target.value.replace(/\D/g, '').substring(0, 10);
+      var formatted = '';
+      if (x.length > 0) formatted = '(' + x.substring(0, 3);
+      if (x.length >= 3) formatted += ') ' + x.substring(3, 6);
+      if (x.length >= 6) formatted += '-' + x.substring(6, 10);
+      e.target.value = formatted;
+    });
+
+    // Live email validation on blur
+    document.getElementById('df-email').addEventListener('blur', function() {
+      var val = this.value.trim();
+      var hint = document.getElementById('email-hint');
+      if (!val) { hint.style.display = 'none'; return; }
+      if (!val.includes('@')) {
+        hint.textContent = 'Missing @ — try something like john@company.com';
+        hint.style.display = 'block';
+      } else if (val.indexOf('@') === 0) {
+        hint.textContent = 'Add your name before the @ symbol';
+        hint.style.display = 'block';
+      } else if (!val.split('@')[1] || !val.split('@')[1].includes('.')) {
+        hint.textContent = 'Missing domain — did you mean ' + val + '.com?';
+        hint.style.display = 'block';
+      } else if (val.endsWith('.')) {
+        hint.textContent = 'Looks incomplete — check the ending';
+        hint.style.display = 'block';
+      } else {
+        hint.style.display = 'none';
+      }
+    });
+    document.getElementById('df-email').addEventListener('input', function() {
+      document.getElementById('email-hint').style.display = 'none';
+    });
+
+    function submitToHubSpot() {
+      var overlay = document.getElementById('captcha-overlay');
+
+      var data = {
+        portalId: '245289942',
+        formGuid: 'b4de1cce-2bcb-4ff8-a34c-5bc5140899d1',
+        fields: [
+          { name: 'firstname', value: document.getElementById('df-fname').value },
+          { name: 'lastname', value: document.getElementById('df-lname').value },
+          { name: 'email', value: document.getElementById('df-email').value },
+          { name: 'company', value: document.getElementById('df-company').value },
+          { name: 'phone', value: '+1' + document.getElementById('df-phone').value.replace(/\D/g, '') },
+          { name: 'jobtitle', value: document.getElementById('df-role').value },
+          { name: 'company_size_installsmonth', value: document.getElementById('df-size').value },
+          { name: 'message', value: document.getElementById('df-msg').value }
+        ]
+      };
+
+      fetch('https://api.hsforms.com/submissions/v3/integration/submit/245289942/b4de1cce-2bcb-4ff8-a34c-5bc5140899d1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function(res) {
+        overlay.style.display = 'none';
+        if (res.ok) {
+          document.getElementById('demo-panel').style.display = 'none';
+          document.getElementById('demo-success-panel').style.display = 'block';
+        } else {
+          document.getElementById('demo-error').style.display = 'block';
+          grecaptcha.reset();
+        }
+      }).catch(function() {
+        overlay.style.display = 'none';
+        document.getElementById('demo-error').style.display = 'block';
+        grecaptcha.reset();
+      });
+    }
+
+    function onCaptchaComplete() {
+      submitToHubSpot();
+    }
+
+    document.getElementById('demo-btn').addEventListener('click', function() {
+      var errEl = document.getElementById('demo-error');
+      var fname = document.getElementById('df-fname').value.trim();
+      var lname = document.getElementById('df-lname').value.trim();
+      var email = document.getElementById('df-email').value.trim();
+      var company = document.getElementById('df-company').value.trim();
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      var errors = [];
+      if (!fname) errors.push('First Name');
+      if (!lname) errors.push('Last Name');
+      if (!email) errors.push('Work Email');
+      else if (!emailRegex.test(email)) {
+        errEl.textContent = 'Please enter a valid email address.';
+        errEl.style.display = 'block';
+        document.getElementById('df-email').focus();
+        return;
+      }
+      if (!company) errors.push('Company Name');
+
+      if (errors.length > 0) {
+        errEl.textContent = 'Please fill in: ' + errors.join(', ');
+        errEl.style.display = 'block';
+        return;
+      }
+
+      errEl.style.display = 'none';
+      document.getElementById('captcha-overlay').style.display = 'flex';
+    });
+
+    document.getElementById('captcha-cancel').addEventListener('click', function() {
+      document.getElementById('captcha-overlay').style.display = 'none';
+      grecaptcha.reset();
+    });
+    </script>
   </div>
 
   <!-- WHY DEMO -->
@@ -120,7 +260,7 @@
   <footer class="footer">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="index.html" class="footer-logo"><img src="assets/logo.png" alt="Solentrex"></a>
+        <a href="/home" class="footer-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
         <p class="footer-tagline">End-to-end AI solar sales platform. Design, propose, finance, and close — all in one system.</p>
         <div class="footer-socials">
           <a href="https://www.facebook.com/people/Solentrex-Inc/61561255088075/" target="_blank" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
@@ -132,10 +272,10 @@
       <div class="footer-nav">
         <h4>Platform</h4>
         <div class="footer-nav-links">
-          <a href="platform.html">Features</a>
-          <a href="integrations.html">Integrations</a>
-          <a href="partners.html">Finance Partners</a>
-          <a href="demo.html">Schedule a Demo</a>
+          <a href="/platform">Features</a>
+          <a href="/integrations">Integrations</a>
+          <a href="/partners">Finance Partners</a>
+          <a href="/demo">Schedule a Demo</a>
           <a href="https://crm.solentrex.com" target="_blank">Login</a>
         </div>
       </div>
@@ -158,6 +298,7 @@
       </div>
     </div>
   </footer>
-  <script src="js/main.js"></script>
+  <script src="{{ get_asset_url('solentrex-website/js/main.js') }}"></script>
 </body>
+{{ standard_footer_includes }}
 </html>
