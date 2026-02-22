@@ -649,10 +649,9 @@ ul{list-style:none}
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
-  mix-blend-mode: screen;
   opacity: 0;
   transition: opacity 0.3s;
-  background: radial-gradient(circle, rgba(43,125,233,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(43,125,233,0.25) 0%, transparent 70%);
   will-change: transform;
 }
 
@@ -964,8 +963,6 @@ body.menu-open{overflow:hidden}
   .crm-mockup-body .dc-chart-panel { border-left:none; border-top:1px solid #e5e7eb }
   .crm-mockup-body .dc-chart-wrapper { min-height:180px }
 
-  /* --- SLIDESHOW duck curve slide --- */
-  .slide .crm-mockup { max-height:none }
 }
 
 @media(max-width:480px){

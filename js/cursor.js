@@ -51,9 +51,9 @@
     if (!el) return;
     var section = el.closest('.contained.warm, .contained.light, .warm');
     if (section) {
-      glow.style.background = 'radial-gradient(circle, rgba(245,127,6,0.08) 0%, transparent 70%)';
+      glow.style.background = 'radial-gradient(circle, rgba(245,127,6,0.2) 0%, transparent 70%)';
     } else {
-      glow.style.background = 'radial-gradient(circle, rgba(43,125,233,0.1) 0%, transparent 70%)';
+      glow.style.background = 'radial-gradient(circle, rgba(43,125,233,0.25) 0%, transparent 70%)';
     }
   }
 

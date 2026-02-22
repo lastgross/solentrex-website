@@ -68,8 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const slides = document.querySelectorAll('.slide');
   const dots = document.querySelectorAll('.slide-dot');
   const progressBar = document.querySelector('.slide-progress');
-  const DUCK_SLIDE_INDEX = 6; // 7th slide (0-indexed)
-
   if (slides.length > 0) {
     let current = 0;
     const total = slides.length;
@@ -79,22 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let progressRAF = null;
 
     function goTo(index) {
-      const prev = current;
       slides[current].classList.remove('active');
       if (dots[current]) dots[current].classList.remove('active');
       current = ((index % total) + total) % total;
       slides[current].classList.add('active');
       if (dots[current]) dots[current].classList.add('active');
       startProgress();
-
-      // Duck curve init/destroy on slide change
-      if (prev === DUCK_SLIDE_INDEX && current !== DUCK_SLIDE_INDEX) {
-        if (window.duckCurveDestroy) window.duckCurveDestroy();
-      }
-      if (current === DUCK_SLIDE_INDEX && prev !== DUCK_SLIDE_INDEX) {
-        if (window.duckCurveDestroy) window.duckCurveDestroy();
-        setTimeout(() => { if (window.duckCurveInit) window.duckCurveInit(); }, 100);
-      }
     }
 
     function startProgress() {
