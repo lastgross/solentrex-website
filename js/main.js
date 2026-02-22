@@ -180,6 +180,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================
+  //  CRM MOCKUP TAB SWITCHING
+  // =========================================
+  document.querySelectorAll('.crm-mockup').forEach(mockup => {
+    const tabs = mockup.querySelectorAll('.crm-mockup-tab');
+    const panels = mockup.querySelectorAll('.crm-mockup-panel');
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        if (panels.length) {
+          panels.forEach(p => p.classList.remove('active'));
+          if (panels[i]) panels[i].classList.add('active');
+        }
+      });
+    });
+  });
+
+  // =========================================
   //  INTERACTIVE CARD TILT (3D perspective)
   // =========================================
   const isMobile = window.matchMedia('(max-width:768px)').matches;
