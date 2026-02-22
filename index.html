@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/duck-curve.css">
 </head>
 <body>
 
@@ -236,6 +237,79 @@
     </div>
   </div>
 
+  <!-- DUCK CURVE — Interactive Battery Visualization -->
+  <div class="contained accent-top-blue" id="duck-curve">
+    <div class="decor-glow" style="width:350px;height:350px;top:-60px;left:-60px;background:rgba(43,125,233,.08)"></div>
+    <div class="api-inner reveal">
+      <div style="width:100%">
+        <p class="section-label">Battery Intelligence</p>
+        <h2 class="section-title">See How Battery Storage Works</h2>
+        <p class="section-sub" style="margin-bottom:32px">Drag the slider to shift energy between backup power and peak demand offset. Watch how your grid usage and utility bill change in real-time.</p>
+        <div class="dc-container">
+          <div class="dc-controls">
+            <div class="dc-battery-info">
+              <div>
+                <div class="dc-battery-header">Battery Storage</div>
+              </div>
+            </div>
+            <div class="dc-battery-info">
+              <div>
+                <div class="dc-battery-label">Total Capacity</div>
+                <span class="dc-battery-value" id="dcCapDisplay">-- <span class="dc-battery-unit">kWh</span></span>
+              </div>
+              <div>
+                <div class="dc-battery-label">Backup Time</div>
+                <span class="dc-backup-value" id="dcBackupTime">--</span>
+              </div>
+            </div>
+            <div class="dc-slider-section" id="dcSliderSection">
+              <div class="dc-slider-label">
+                <div class="dc-slider-pct" id="dcBackupPct">60%</div>
+                <div class="dc-slider-name">Backup</div>
+                <div class="dc-slider-kwh" id="dcBackupKwh">-- kWh</div>
+              </div>
+              <div class="dc-slider-track">
+                <input type="range" class="dc-slider-input" id="dcShiftSlider" min="0" max="100" value="40" step="10">
+              </div>
+              <div class="dc-slider-label">
+                <div class="dc-slider-pct" id="dcShiftPct">40%</div>
+                <div class="dc-slider-name">Energy Shift</div>
+                <div class="dc-slider-kwh" id="dcShiftKwh">-- kWh</div>
+              </div>
+            </div>
+          </div>
+          <div class="dc-chart-panel">
+            <div class="dc-chart-title">Daily Energy Profile</div>
+            <p class="dc-chart-subtitle">See how your battery shifts solar to evening. <span class="dc-red">Red</span> = energy from the grid you pay for.</p>
+            <div class="dc-legend">
+              <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#3b82f6"></div> Demand</div>
+              <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#f59e0b"></div> Solar</div>
+              <div class="dc-legend-item" id="dcLegBatt"><div class="dc-legend-dot" style="background:#22c55e"></div> Solar + Battery</div>
+              <div class="dc-legend-item"><div class="dc-legend-grid-icon"></div> Grid</div>
+            </div>
+            <div class="dc-chart-wrapper">
+              <canvas id="dcChart"></canvas>
+            </div>
+            <div class="dc-stats">
+              <div class="dc-stat">
+                <div class="dc-stat-value dc-stat-value--grid" id="dcStatGrid">--</div>
+                <div class="dc-stat-label">kWh From Grid</div>
+              </div>
+              <div class="dc-stat">
+                <div class="dc-stat-value dc-stat-value--self" id="dcStatSelf">--</div>
+                <div class="dc-stat-label">Self-Powered</div>
+              </div>
+              <div class="dc-stat">
+                <div class="dc-stat-value dc-stat-value--bill" id="dcStatBill">--</div>
+                <div class="dc-stat-label">Est. Utility Bill</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- COMPARISON (dark with orange accent border) -->
   <div class="contained accent-top" id="comparison">
     <p class="section-label" style="text-align:center">Compare</p>
@@ -317,5 +391,16 @@
   <script src="js/main.js"></script>
   <script src="js/terminal-data.js"></script>
   <script src="js/terminal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script>
+  window.DUCK_CURVE_CONFIG = {
+    demand: [0.8,0.7,0.6,0.6,0.7,0.9,1.2,1.5,1.4,1.3,1.2,1.3,1.4,1.5,1.6,1.8,2.1,2.4,2.6,2.3,1.9,1.5,1.1,0.9],
+    solar:  [0,0,0,0,0,0,0.2,0.8,1.8,2.8,3.5,3.9,4.0,3.8,3.2,2.3,1.2,0.3,0,0,0,0,0,0],
+    batteryKwh: 13.5,
+    costPerKwh: 0.18,
+    gridFee: 12
+  };
+  </script>
+  <script src="js/duck-curve.js"></script>
 </body>
 </html>
