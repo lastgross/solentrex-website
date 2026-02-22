@@ -691,11 +691,11 @@ body.menu-open{overflow:hidden}
   .section-sub{font-size:1rem;line-height:1.7}
   .section-label{font-size:.72rem;margin-bottom:12px}
 
-  /* --- SLIDESHOW — stack on mobile --- */
-  .slides-wrapper{height:auto;min-height:280px}
-  .slide{position:relative;display:none;flex-direction:column;gap:24px;text-align:center}
-  .slide.active{display:flex}
+  /* --- SLIDESHOW — stack on mobile, fixed height to prevent shift --- */
+  .slides-wrapper{height:520px}
+  .slide{flex-direction:column;gap:20px;text-align:center}
   .slide-img{max-width:100%}
+  .slide-img img{max-height:200px;width:auto;margin:0 auto}
   .slide-text{align-items:center}
   .slide h3{font-size:1.3rem}
   .slide p{font-size:1rem;max-width:100%}
@@ -754,7 +754,8 @@ body.menu-open{overflow:hidden}
   .comp-table tbody td.hl{font-size:1rem}
 
   /* --- API TERMINAL --- */
-  .terminal-body{font-size:.7rem;padding:14px;height:360px}
+  .terminal-body{font-size:.6rem;padding:14px;height:360px;overflow-x:hidden}
+  .terminal-line{white-space:pre-wrap;word-break:break-all}
   .terminal-header{padding:10px 14px}
 
   /* --- PARTNERS — bigger, brighter, more obvious --- */
@@ -762,7 +763,14 @@ body.menu-open{overflow:hidden}
   .partners-label{font-size:.88rem;letter-spacing:2px;margin-bottom:28px;color:var(--white)}
   .partners-grid{grid-template-columns:repeat(2,1fr);gap:24px 32px}
   .partner-logo{height:26px;opacity:.65}
-  .partner-tooltip{display:none}
+  .partner-tooltip{
+    position:static;transform:none;opacity:1;pointer-events:auto;
+    width:auto;background:none;box-shadow:none;padding:0;
+    font-size:.75rem;color:var(--text-muted);margin-top:8px;
+  }
+  .partner-tooltip::after{display:none}
+  .partner-item{flex-direction:column;text-align:center}
+  .partner-item:hover .partner-tooltip{transform:none}
   .partner-text{font-size:1rem;color:rgba(255,255,255,.4)}
 
   /* --- INTEGRATION CARDS — prominent, not hidden --- */
@@ -789,9 +797,9 @@ body.menu-open{overflow:hidden}
     border-bottom-color:var(--border-light)!important;
   }
 
-  /* --- STAT CARDS — inline row, not stacked --- */
+  /* --- STAT CARDS — center all on mobile --- */
   .stat-row{
-    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
   }
   .stat-card{
     max-width:100%;width:100%;padding:20px 16px;
