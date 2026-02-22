@@ -149,11 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Subtle parallax on decor elements ---
+  // --- Subtle parallax: background scrolls slower than content ---
   const decors = document.querySelectorAll('.decor-glow, .decor-dots, .decor-ring, .decor-bar, .decor-diamond, .decor-cross, .fullpage-grid');
   if (decors.length) {
     window.addEventListener('scroll', () => {
-      const y = window.scrollY * -0.2;
+      const y = window.scrollY * 0.3;
       decors.forEach(el => { el.style.marginTop = y + 'px'; });
     }, { passive: true });
   }
