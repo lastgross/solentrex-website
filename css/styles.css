@@ -333,7 +333,7 @@ ul{list-style:none}
   color:rgba(255,255,255,.25);transition:color .3s;
 }
 .partner-text:hover{color:var(--orange)}
-.partner-logo{height:28px;opacity:.45;transition:opacity .3s;filter:brightness(0) invert(1)}
+.partner-logo{height:36px;opacity:.45;transition:opacity .3s;filter:brightness(0) invert(1)}
 .partner-item:hover .partner-logo{opacity:.85}
 .partner-tooltip{
   position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);
@@ -417,7 +417,7 @@ ul{list-style:none}
 .api-inner{display:flex;align-items:center;gap:56px}
 .api-text{flex:1}
 .api-text .section-sub{margin-bottom:24px}
-.api-visual{flex:1;max-width:520px}
+.api-visual{flex:1.2;max-width:580px}
 .api-terminal{
   border-radius:12px;overflow:hidden;
   border:1px solid rgba(255,255,255,.1);
@@ -438,15 +438,18 @@ ul{list-style:none}
   font-family:'Courier New',monospace;letter-spacing:.5px;
 }
 .terminal-body{
-  background:rgba(10,12,20,.95);padding:20px;
-  font-family:'Courier New',monospace;font-size:.78rem;
-  line-height:1.7;overflow-x:auto;min-height:320px;
+  background:rgba(10,12,20,.95);padding:24px;
+  font-family:'Courier New',monospace;font-size:.82rem;
+  line-height:1.8;overflow-x:auto;height:420px;overflow-y:hidden;
 }
 .terminal-line{display:flex;align-items:baseline;gap:8px;white-space:pre}
 .terminal-blank{height:1.4em}
-.terminal-prompt{color:var(--blue-light);font-weight:700;user-select:none;flex-shrink:0}
-.terminal-typed{color:var(--text-primary);overflow:hidden;white-space:pre;display:inline-block;border-right:2px solid var(--blue-light);width:0}
+.terminal-prompt{color:var(--orange);font-weight:700;user-select:none;flex-shrink:0}
+.terminal-typed{color:var(--blue-light);white-space:pre;display:inline-block;border-right:2px solid var(--orange);font-weight:500}
 .terminal-typed.done{border-right-color:transparent}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+.terminal-typed:not(.done){animation:cursorBlink .8s step-end infinite}
+.terminal-typed:not(.done){border-right-color:var(--orange)}
 .terminal-output{
   opacity:0;transform:translateY(4px);
   transition:opacity .3s,transform .3s;
@@ -752,7 +755,7 @@ body.menu-open{overflow:hidden}
   .comp-table tbody td.hl{font-size:1rem}
 
   /* --- API TERMINAL --- */
-  .terminal-body{font-size:.7rem;padding:14px;min-height:auto}
+  .terminal-body{font-size:.7rem;padding:14px;height:360px}
   .terminal-header{padding:10px 14px}
 
   /* --- PARTNERS — bigger, brighter, more obvious --- */
