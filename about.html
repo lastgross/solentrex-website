@@ -1,48 +1,42 @@
-<!--
-  templateType: page
-  isAvailableForNewContent: true
-  label: About
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {{ standard_header_includes }}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About – Solentrex</title>
   <meta name="description" content="The story behind Solentrex: built by a team that saw how broken solar software was and decided to fix it.">
-  <link rel="icon" href="{{ get_asset_url('solentrex-website/assets/favicon.ico') }}" type="image/x-icon">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ get_asset_url('solentrex-website/css/styles.css') }}">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-pill">
-      <a href="/home" class="nav-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
+      <a href="index.html" class="nav-logo"><img src="assets/logo.png" alt="Solentrex"></a>
       <div class="nav-links">
-        <a href="/platform">Platform</a>
-        <a href="/integrations">Integrations</a>
-        <a href="/partners">Partners</a>
-        <a href="/about">About</a>
+        <a href="platform.html">Platform</a>
+        <a href="integrations.html">Integrations</a>
+        <a href="partners.html">Partners</a>
+        <a href="about.html">About</a>
       </div>
       <div class="nav-actions">
         <a href="https://crm.solentrex.com" class="login-link" target="_blank">Login</a>
-        <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
+        <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
       </div>
       <div class="nav-hamburger"><span></span><span></span><span></span></div>
     </div>
   </nav>
   <div class="mobile-menu">
-    <a href="/platform">Platform</a>
-    <a href="/integrations">Integrations</a>
-    <a href="/partners">Partners</a>
-    <a href="/about">About</a>
+    <a href="platform.html">Platform</a>
+    <a href="integrations.html">Integrations</a>
+    <a href="partners.html">Partners</a>
+    <a href="about.html">About</a>
     <a href="https://crm.solentrex.com" target="_blank">Login</a>
-    <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
+    <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
   </div>
 
   <!-- PAGE HERO -->
@@ -65,7 +59,7 @@
         <p>Our COO had a direct, hands-on experience in solar operations — and it was painful. Design tools that didn't talk to CRMs. Proposals that took 30 minutes. E-signatures that cost per use. Finance portals in separate tabs. Change orders caused by averaged production numbers. Teams stitching together 5+ tools just to close a single deal.</p>
         <p style="margin-top:16px">The vision was clear: build one platform that does everything, and make it the most accurate tool in the industry. Not another integration layer — a complete replacement.</p>
       </div>
-      <div class="visual img-visual"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic3.png') }}" alt="Solentrex platform design interface"></div>
+      <div class="visual img-visual"><img src="assets/images/hpic3.png" alt="Solentrex platform design interface"></div>
     </div>
   </div>
 
@@ -89,7 +83,7 @@
         <h3>Engineering-First Culture</h3>
         <p>32 dedicated developers with access to 200+ additional engineers when needed. The core team has worked together for over 20 years — this isn't a team that was assembled for a startup, it's a team that has built enterprise software together for decades and turned their focus to solar.</p>
       </div>
-      <div class="visual img-visual"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic6.png') }}" alt="Master and sub-account team management"></div>
+      <div class="visual img-visual"><img src="assets/images/hpic6.png" alt="Master and sub-account team management"></div>
     </div>
     <div class="feature-row reveal">
       <div class="text">
@@ -97,7 +91,7 @@
         <h3>Becoming the Solar ERP</h3>
         <p>The goal isn't just a design tool or a CRM — it's a complete ERP where solar companies can run their entire business on one platform. From lead generation to project activation to commission payouts. One login, one system, zero fragmentation. Mobile app launching May 2026.</p>
       </div>
-      <div class="visual img-visual"><img src="{{ get_asset_url('solentrex-website/assets/images/homebanner1.png') }}" alt="Solentrex platform on tablet"></div>
+      <div class="visual img-visual"><img src="assets/images/homebanner1.png" alt="Solentrex platform on tablet"></div>
     </div>
   </div>
 
@@ -128,14 +122,14 @@
   <div class="contained cta-contained">
     <h2>Join the Companies Switching to Solentrex</h2>
     <p>See why EPCs and dealers are consolidating onto one platform.</p>
-    <a href="/demo" class="btn btn-orange" style="padding:14px 36px;font-size:1rem">Schedule a Demo</a>
+    <a href="demo.html" class="btn btn-orange" style="padding:14px 36px;font-size:1rem">Schedule a Demo</a>
   </div>
 
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="/home" class="footer-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
+        <a href="index.html" class="footer-logo"><img src="assets/logo.png" alt="Solentrex"></a>
         <p class="footer-tagline">End-to-end AI solar sales platform. Design, propose, finance, and close — all in one system.</p>
         <div class="footer-socials">
           <a href="https://www.facebook.com/people/Solentrex-Inc/61561255088075/" target="_blank" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
@@ -147,10 +141,10 @@
       <div class="footer-nav">
         <h4>Platform</h4>
         <div class="footer-nav-links">
-          <a href="/platform">Features</a>
-          <a href="/integrations">Integrations</a>
-          <a href="/partners">Finance Partners</a>
-          <a href="/demo">Schedule a Demo</a>
+          <a href="platform.html">Features</a>
+          <a href="integrations.html">Integrations</a>
+          <a href="partners.html">Finance Partners</a>
+          <a href="demo.html">Schedule a Demo</a>
           <a href="https://crm.solentrex.com" target="_blank">Login</a>
         </div>
       </div>
@@ -173,7 +167,6 @@
       </div>
     </div>
   </footer>
-  <script src="{{ get_asset_url('solentrex-website/js/main.js') }}"></script>
+  <script src="js/main.js"></script>
 </body>
-{{ standard_footer_includes }}
 </html>

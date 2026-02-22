@@ -1,48 +1,42 @@
-<!--
-  templateType: page
-  isAvailableForNewContent: true
-  label: Integrations
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {{ standard_header_includes }}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Integrations – Solentrex</title>
   <meta name="description" content="Solentrex integrations: Nearmap, Vexcel, Arcadia, USPS, bi-directional APIs, and custom webhooks.">
-  <link rel="icon" href="{{ get_asset_url('solentrex-website/assets/favicon.ico') }}" type="image/x-icon">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ get_asset_url('solentrex-website/css/styles.css') }}">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-pill">
-      <a href="/home" class="nav-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
+      <a href="index.html" class="nav-logo"><img src="assets/logo.png" alt="Solentrex"></a>
       <div class="nav-links">
-        <a href="/platform">Platform</a>
-        <a href="/integrations">Integrations</a>
-        <a href="/partners">Partners</a>
-        <a href="/about">About</a>
+        <a href="platform.html">Platform</a>
+        <a href="integrations.html">Integrations</a>
+        <a href="partners.html">Partners</a>
+        <a href="about.html">About</a>
       </div>
       <div class="nav-actions">
         <a href="https://crm.solentrex.com" class="login-link" target="_blank">Login</a>
-        <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
+        <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
       </div>
       <div class="nav-hamburger"><span></span><span></span><span></span></div>
     </div>
   </nav>
   <div class="mobile-menu">
-    <a href="/platform">Platform</a>
-    <a href="/integrations">Integrations</a>
-    <a href="/partners">Partners</a>
-    <a href="/about">About</a>
+    <a href="platform.html">Platform</a>
+    <a href="integrations.html">Integrations</a>
+    <a href="partners.html">Partners</a>
+    <a href="about.html">About</a>
     <a href="https://crm.solentrex.com" target="_blank">Login</a>
-    <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
+    <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
   </div>
 
   <!-- PAGE HERO -->
@@ -63,19 +57,19 @@
     <p class="section-sub" style="margin-bottom:40px">We don't just show you a rooftop — we give you the most accurate aerial imagery and utility data available.</p>
     <div class="integration-grid stagger">
       <div class="integration-card reveal">
-        <div class="logo-area" style="display:flex;align-items:center;gap:6px"><img src="{{ get_asset_url('solentrex-website/assets/logos/nearmap-icon.png') }}" alt="Nearmap" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"><img src="{{ get_asset_url('solentrex-website/assets/logos/nearmap.png') }}" alt="Nearmap" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
+        <div class="logo-area" style="display:flex;align-items:center;gap:6px"><img src="assets/logos/nearmap-icon.png" alt="Nearmap" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"><img src="assets/logos/nearmap.png" alt="Nearmap" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
         <h3>HD Aerial Imagery</h3>
         <p>High-resolution, frequently updated aerial imagery covering the US and beyond. Multiple DSM data options ensure coverage even in rural areas. See every rooftop in sharp detail for accurate panel placement and shading analysis.</p>
         <span class="tag">Imagery</span>
       </div>
       <div class="integration-card reveal">
-        <div class="logo-area"><img src="{{ get_asset_url('solentrex-website/assets/logos/vexcel.png') }}" alt="Vexcel" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
+        <div class="logo-area"><img src="assets/logos/vexcel.png" alt="Vexcel" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
         <h3>3D Roof Intelligence</h3>
         <p>High-resolution oblique imagery and 3D data for precise roof measurements, pitch detection, and obstruction identification.</p>
         <span class="tag">Imagery</span>
       </div>
       <div class="integration-card reveal">
-        <div class="logo-area"><img src="{{ get_asset_url('solentrex-website/assets/logos/arcadia.png') }}" alt="Arcadia" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
+        <div class="logo-area"><img src="assets/logos/arcadia.png" alt="Arcadia" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
         <h3>11,000+ Utilities &amp; 600K Tariffs</h3>
         <p>Comprehensive utility data integration providing access to rate schedules, Time of Use rates, and accurate post-solar bill calculations across North America.</p>
         <span class="tag">Utility Data</span>
@@ -91,13 +85,13 @@
     <p class="section-sub" style="margin-bottom:40px">Precise data from the start eliminates errors downstream.</p>
     <div class="integration-grid stagger">
       <div class="integration-card reveal">
-        <div class="logo-area"><img src="{{ get_asset_url('solentrex-website/assets/logos/smarty.png') }}" alt="Smarty" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
+        <div class="logo-area"><img src="assets/logos/smarty.png" alt="Smarty" style="height:24px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
         <h3>USPS-Connected Coordinates</h3>
         <p>Connected directly to USPS for precise rooftop coordinates. No geocoding guesswork — every address resolves to the exact structure.</p>
         <span class="tag">Address</span>
       </div>
       <div class="integration-card reveal">
-        <div class="logo-area"><img src="{{ get_asset_url('solentrex-website/assets/logos/google-maps.png') }}" alt="Google Maps" style="height:28px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
+        <div class="logo-area"><img src="assets/logos/google-maps.png" alt="Google Maps" style="height:28px;filter:brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(1200%) hue-rotate(190deg) brightness(95%)"></div>
         <h3>Satellite Imagery &amp; Geocoding</h3>
         <p>Google Maps powers the map-based design experience — satellite views, street-level context, and precise geocoding for every address.</p>
         <span class="tag">Mapping</span>
@@ -124,7 +118,7 @@
         <p class="section-label">Developer-Ready</p>
         <h2 class="section-title">Bi-Directional APIs &amp; Custom Webhooks</h2>
         <p class="section-sub">Open REST APIs for every operation. Push leads in, pull proposals out. Sync with your CRM, accounting, or any system in real-time. Custom webhooks created free of charge for early adopters.</p>
-        <a href="/demo" class="btn btn-outline-dark" style="margin-top:16px">Request API Access</a>
+        <a href="demo.html" class="btn btn-outline-dark" style="margin-top:16px">Request API Access</a>
       </div>
       <div class="api-visual">
         <div class="api-code" style="background:var(--surface-light);border-color:var(--border-light);color:var(--text-dark-muted)">
@@ -148,14 +142,14 @@ payment.received
   <div class="contained cta-contained">
     <h2>Don't See Your Integration?</h2>
     <p>Our modular architecture and open APIs mean we can connect to virtually anything. Talk to us about your stack.</p>
-    <a href="/demo" class="btn btn-orange" style="padding:14px 36px;font-size:1rem">Talk to Engineering</a>
+    <a href="demo.html" class="btn btn-orange" style="padding:14px 36px;font-size:1rem">Talk to Engineering</a>
   </div>
 
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="/home" class="footer-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
+        <a href="index.html" class="footer-logo"><img src="assets/logo.png" alt="Solentrex"></a>
         <p class="footer-tagline">End-to-end AI solar sales platform. Design, propose, finance, and close — all in one system.</p>
         <div class="footer-socials">
           <a href="https://www.facebook.com/people/Solentrex-Inc/61561255088075/" target="_blank" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
@@ -167,10 +161,10 @@ payment.received
       <div class="footer-nav">
         <h4>Platform</h4>
         <div class="footer-nav-links">
-          <a href="/platform">Features</a>
-          <a href="/integrations">Integrations</a>
-          <a href="/partners">Finance Partners</a>
-          <a href="/demo">Schedule a Demo</a>
+          <a href="platform.html">Features</a>
+          <a href="integrations.html">Integrations</a>
+          <a href="partners.html">Finance Partners</a>
+          <a href="demo.html">Schedule a Demo</a>
           <a href="https://crm.solentrex.com" target="_blank">Login</a>
         </div>
       </div>
@@ -193,7 +187,6 @@ payment.received
       </div>
     </div>
   </footer>
-  <script src="{{ get_asset_url('solentrex-website/js/main.js') }}"></script>
+  <script src="js/main.js"></script>
 </body>
-{{ standard_footer_includes }}
 </html>
