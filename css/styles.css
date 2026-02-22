@@ -572,10 +572,7 @@ ul{list-style:none}
 .integration-card:hover{border-color:rgba(43,125,233,.2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.15)}
 .integration-card .logo-area{
   display:inline-flex;align-items:center;margin-bottom:20px;
-  background:rgba(255,255,255,.08);padding:10px 16px;border-radius:10px;
-}
-.warm .integration-card .logo-area,.contained.light .integration-card .logo-area{
-  background:rgba(0,0,0,.04);
+  background:rgba(255,255,255,.95);padding:10px 16px;border-radius:10px;
 }
 .integration-card .logo-area span{
   font-size:1.25rem;font-weight:800;color:var(--blue-light);
