@@ -1,16 +1,16 @@
 /* ========================================
    Solentrex - Main JS
-   Premium scroll reveals + slideshow
+   Premium scroll reveals, slideshow,
+   card tilt, magnetic buttons, counters,
+   easter eggs
    ======================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- Full-page grid overlay (home page only) ---
-  if (document.querySelector('.hero')) {
-    const grid = document.createElement('div');
-    grid.className = 'fullpage-grid';
-    document.body.insertBefore(grid, document.body.firstChild);
-  }
+  // --- Full-page grid overlay (ALL pages) ---
+  const grid = document.createElement('div');
+  grid.className = 'fullpage-grid';
+  document.body.insertBefore(grid, document.body.firstChild);
 
   // --- Floating pill nav scroll state ---
   const nav = document.querySelector('.nav');
@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     mobileMenu.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', closeMobileMenu);
     });
-    // Close on outside tap
     document.addEventListener('click', (e) => {
       if (mobileMenu.classList.contains('open') && !mobileMenu.contains(e.target) && !hamburger.contains(e.target)) {
         closeMobileMenu();
@@ -69,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const slides = document.querySelectorAll('.slide');
   const dots = document.querySelectorAll('.slide-dot');
   const progressBar = document.querySelector('.slide-progress');
+  const DUCK_SLIDE_INDEX = 6; // 7th slide (0-indexed)
+
   if (slides.length > 0) {
     let current = 0;
     const total = slides.length;
@@ -78,12 +79,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let progressRAF = null;
 
     function goTo(index) {
+      const prev = current;
       slides[current].classList.remove('active');
       if (dots[current]) dots[current].classList.remove('active');
       current = ((index % total) + total) % total;
       slides[current].classList.add('active');
       if (dots[current]) dots[current].classList.add('active');
       startProgress();
+
+      // Duck curve init/destroy on slide change
+      if (prev === DUCK_SLIDE_INDEX && current !== DUCK_SLIDE_INDEX) {
+        if (window.duckCurveDestroy) window.duckCurveDestroy();
+      }
+      if (current === DUCK_SLIDE_INDEX && prev !== DUCK_SLIDE_INDEX) {
+        if (window.duckCurveDestroy) window.duckCurveDestroy();
+        setTimeout(() => { if (window.duckCurveInit) window.duckCurveInit(); }, 100);
+      }
     }
 
     function startProgress() {
@@ -177,6 +188,194 @@ document.addEventListener('DOMContentLoaded', () => {
           demoForm.reset();
         }, 3000);
       }, 1200);
+    });
+  }
+
+  // =========================================
+  //  INTERACTIVE CARD TILT (3D perspective)
+  // =========================================
+  const isMobile = window.matchMedia('(max-width:768px)').matches;
+
+  if (!isMobile) {
+    const tiltCards = document.querySelectorAll('.bento-card, .integration-card, .stat-card');
+    tiltCards.forEach(card => {
+      card.style.transition = 'transform 0.15s ease-out';
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -4;
+        const rotateY = ((x - centerX) / centerX) * 4;
+        card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // =========================================
+    //  MAGNETIC BUTTONS
+    // =========================================
+    const magneticBtns = document.querySelectorAll('.btn-orange, .btn-blue');
+    magneticBtns.forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const btnCenterX = rect.left + rect.width / 2;
+        const btnCenterY = rect.top + rect.height / 2;
+        const distX = e.clientX - btnCenterX;
+        const distY = e.clientY - btnCenterY;
+        const dist = Math.sqrt(distX * distX + distY * distY);
+        if (dist < 80) {
+          const pull = (1 - dist / 80) * 4;
+          const moveX = (distX / dist) * pull;
+          const moveY = (distY / dist) * pull;
+          btn.style.transform = `translate(${moveX}px, ${moveY}px) translateY(-2px)`;
+        }
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
+
+  // =========================================
+  //  ANIMATED NUMBER COUNTERS
+  // =========================================
+  function animateCounter(el) {
+    const text = el.textContent.trim();
+    // Parse patterns: "86K+", "-1.1%", "<60s", "6,800+", "$2M+", "100%", "2.5", "32", "15 min"
+    const match = text.match(/^([<$-]?)([0-9,.]+)([KkMm]?)([+%s]?.*)$/);
+    if (!match) return;
+
+    const prefix = match[1];
+    const numStr = match[2].replace(/,/g, '');
+    const suffix1 = match[3]; // K, M
+    const suffix2 = match[4]; // +, %, s, etc.
+    const target = parseFloat(numStr);
+    const hasDecimal = numStr.includes('.');
+    const decimalPlaces = hasDecimal ? (numStr.split('.')[1] || '').length : 0;
+    const hasComma = match[2].includes(',');
+
+    const duration = 1500;
+    const startTime = performance.now();
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function formatNum(n) {
+      let s = hasDecimal ? n.toFixed(decimalPlaces) : Math.round(n).toString();
+      if (hasComma) {
+        const parts = s.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        s = parts.join('.');
+      }
+      return s;
+    }
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      const current = target * eased;
+      el.textContent = prefix + formatNum(current) + suffix1 + suffix2;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  const counterEls = document.querySelectorAll('.hero-stat .num, .stat-card .num');
+  if (counterEls.length) {
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counterEls.forEach(el => counterObserver.observe(el));
+  }
+
+  // =========================================
+  //  EASTER EGGS
+  // =========================================
+
+  // --- Konami Code: ↑↑↓↓←→←→BA ---
+  const konamiSequence = [38,38,40,40,37,39,37,39,66,65];
+  let konamiIndex = 0;
+  document.addEventListener('keydown', (e) => {
+    if (e.keyCode === konamiSequence[konamiIndex]) {
+      konamiIndex++;
+      if (konamiIndex === konamiSequence.length) {
+        konamiIndex = 0;
+        triggerConfetti();
+      }
+    } else {
+      konamiIndex = 0;
+    }
+  });
+
+  function triggerConfetti() {
+    const colors = ['#F57F06', '#ff8c1a', '#ffab42', '#0258A8', '#2b7de9', '#4da3e8'];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.top = '-10px';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (Math.random() * 6 + 4) + 'px';
+      piece.style.height = (Math.random() * 6 + 4) + 'px';
+      piece.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+      piece.style.animationDelay = (Math.random() * 0.5) + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3000);
+    }
+  }
+
+  // --- Logo triple-click: brief dark orange theme flash ---
+  const logoLink = document.querySelector('.nav-logo');
+  if (logoLink) {
+    let clickCount = 0;
+    let clickTimer = null;
+    logoLink.addEventListener('click', (e) => {
+      clickCount++;
+      if (clickTimer) clearTimeout(clickTimer);
+      if (clickCount === 3) {
+        clickCount = 0;
+        e.preventDefault();
+        document.body.style.transition = 'filter 0.3s';
+        document.body.style.filter = 'sepia(0.4) saturate(1.5) hue-rotate(-10deg)';
+        setTimeout(() => {
+          document.body.style.filter = '';
+          setTimeout(() => { document.body.style.transition = ''; }, 300);
+        }, 2000);
+      }
+      clickTimer = setTimeout(() => { clickCount = 0; }, 500);
+    });
+  }
+
+  // --- 86K+ hover tooltip: "and counting..." after 3s ---
+  const devHoursStat = Array.from(document.querySelectorAll('.hero-stat')).find(el => {
+    const num = el.querySelector('.num');
+    return num && num.textContent.includes('86K');
+  });
+  if (devHoursStat) {
+    devHoursStat.style.position = 'relative';
+    let hoverTimer = null;
+    const tooltip = document.createElement('div');
+    tooltip.className = 'easter-tooltip';
+    tooltip.textContent = 'and counting...';
+    devHoursStat.appendChild(tooltip);
+
+    devHoursStat.addEventListener('mouseenter', () => {
+      hoverTimer = setTimeout(() => {
+        tooltip.classList.add('visible');
+      }, 3000);
+    });
+    devHoursStat.addEventListener('mouseleave', () => {
+      if (hoverTimer) clearTimeout(hoverTimer);
+      tooltip.classList.remove('visible');
     });
   }
 });

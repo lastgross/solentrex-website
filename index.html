@@ -124,11 +124,91 @@
             <p>Lead to activation in one system. Pipeline, tasks, documents, commissions.</p>
           </div>
         </div>
+        <div class="slide">
+          <div class="slide-text">
+            <div class="slide-stat">Battery</div>
+            <h3>Battery Intelligence</h3>
+            <p>See exactly how battery storage shifts solar energy to evening peaks. Drag the slider to balance backup power vs. grid offset and watch your utility bill change in real-time.</p>
+          </div>
+          <div class="slide-img" style="flex:1.3">
+            <div class="crm-mockup">
+              <div class="crm-mockup-tabs">
+                <div class="crm-mockup-tab">System Design</div>
+                <div class="crm-mockup-tab">Production</div>
+                <div class="crm-mockup-tab active">Energy Details</div>
+              </div>
+              <div class="crm-mockup-body">
+                <div class="dc-container dc-container--light">
+                  <div class="dc-controls">
+                    <div class="dc-battery-info">
+                      <div>
+                        <div class="dc-battery-header">Battery Storage</div>
+                      </div>
+                    </div>
+                    <div class="dc-battery-info">
+                      <div>
+                        <div class="dc-battery-label">Total Capacity</div>
+                        <span class="dc-battery-value" id="dcCapDisplay">-- <span class="dc-battery-unit">kWh</span></span>
+                      </div>
+                      <div>
+                        <div class="dc-battery-label">Backup Time</div>
+                        <span class="dc-backup-value" id="dcBackupTime">--</span>
+                      </div>
+                    </div>
+                    <div class="dc-slider-section" id="dcSliderSection">
+                      <div class="dc-slider-label">
+                        <div class="dc-slider-pct" id="dcBackupPct">60%</div>
+                        <div class="dc-slider-name">Backup</div>
+                        <div class="dc-slider-kwh" id="dcBackupKwh">-- kWh</div>
+                      </div>
+                      <div class="dc-slider-track">
+                        <input type="range" class="dc-slider-input" id="dcShiftSlider" min="0" max="100" value="40" step="10">
+                      </div>
+                      <div class="dc-slider-label">
+                        <div class="dc-slider-pct" id="dcShiftPct">40%</div>
+                        <div class="dc-slider-name">Energy Shift</div>
+                        <div class="dc-slider-kwh" id="dcShiftKwh">-- kWh</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dc-chart-panel">
+                    <div class="dc-chart-title">Daily Energy Profile</div>
+                    <p class="dc-chart-subtitle">See how your battery shifts solar to evening. <span class="dc-red">Red</span> = energy from the grid you pay for.</p>
+                    <div class="dc-legend">
+                      <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#3b82f6"></div> Demand</div>
+                      <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#f59e0b"></div> Solar</div>
+                      <div class="dc-legend-item" id="dcLegBatt"><div class="dc-legend-dot" style="background:#22c55e"></div> Solar + Battery</div>
+                      <div class="dc-legend-item"><div class="dc-legend-grid-icon"></div> Grid</div>
+                    </div>
+                    <div class="dc-chart-wrapper">
+                      <canvas id="dcChart"></canvas>
+                    </div>
+                    <div class="dc-stats">
+                      <div class="dc-stat">
+                        <div class="dc-stat-value dc-stat-value--grid" id="dcStatGrid">--</div>
+                        <div class="dc-stat-label">kWh From Grid</div>
+                      </div>
+                      <div class="dc-stat">
+                        <div class="dc-stat-value dc-stat-value--self" id="dcStatSelf">--</div>
+                        <div class="dc-stat-label">Self-Powered</div>
+                      </div>
+                      <div class="dc-stat">
+                        <div class="dc-stat-value dc-stat-value--bill" id="dcStatBill">--</div>
+                        <div class="dc-stat-label">Est. Utility Bill</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="slide-progress"></div>
       </div>
       <div class="slide-dots">
         <div class="slide-dot"></div><div class="slide-dot"></div><div class="slide-dot"></div>
         <div class="slide-dot"></div><div class="slide-dot"></div><div class="slide-dot"></div>
+        <div class="slide-dot"></div>
       </div>
     </div>
   </div>
@@ -237,79 +317,6 @@
     </div>
   </div>
 
-  <!-- DUCK CURVE — Interactive Battery Visualization -->
-  <div class="contained accent-top-blue" id="duck-curve">
-    <div class="decor-glow" style="width:350px;height:350px;top:-60px;left:-60px;background:rgba(43,125,233,.08)"></div>
-    <div class="api-inner reveal">
-      <div style="width:100%">
-        <p class="section-label">Battery Intelligence</p>
-        <h2 class="section-title">See How Battery Storage Works</h2>
-        <p class="section-sub" style="margin-bottom:32px">Drag the slider to shift energy between backup power and peak demand offset. Watch how your grid usage and utility bill change in real-time.</p>
-        <div class="dc-container">
-          <div class="dc-controls">
-            <div class="dc-battery-info">
-              <div>
-                <div class="dc-battery-header">Battery Storage</div>
-              </div>
-            </div>
-            <div class="dc-battery-info">
-              <div>
-                <div class="dc-battery-label">Total Capacity</div>
-                <span class="dc-battery-value" id="dcCapDisplay">-- <span class="dc-battery-unit">kWh</span></span>
-              </div>
-              <div>
-                <div class="dc-battery-label">Backup Time</div>
-                <span class="dc-backup-value" id="dcBackupTime">--</span>
-              </div>
-            </div>
-            <div class="dc-slider-section" id="dcSliderSection">
-              <div class="dc-slider-label">
-                <div class="dc-slider-pct" id="dcBackupPct">60%</div>
-                <div class="dc-slider-name">Backup</div>
-                <div class="dc-slider-kwh" id="dcBackupKwh">-- kWh</div>
-              </div>
-              <div class="dc-slider-track">
-                <input type="range" class="dc-slider-input" id="dcShiftSlider" min="0" max="100" value="40" step="10">
-              </div>
-              <div class="dc-slider-label">
-                <div class="dc-slider-pct" id="dcShiftPct">40%</div>
-                <div class="dc-slider-name">Energy Shift</div>
-                <div class="dc-slider-kwh" id="dcShiftKwh">-- kWh</div>
-              </div>
-            </div>
-          </div>
-          <div class="dc-chart-panel">
-            <div class="dc-chart-title">Daily Energy Profile</div>
-            <p class="dc-chart-subtitle">See how your battery shifts solar to evening. <span class="dc-red">Red</span> = energy from the grid you pay for.</p>
-            <div class="dc-legend">
-              <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#3b82f6"></div> Demand</div>
-              <div class="dc-legend-item"><div class="dc-legend-dot" style="background:#f59e0b"></div> Solar</div>
-              <div class="dc-legend-item" id="dcLegBatt"><div class="dc-legend-dot" style="background:#22c55e"></div> Solar + Battery</div>
-              <div class="dc-legend-item"><div class="dc-legend-grid-icon"></div> Grid</div>
-            </div>
-            <div class="dc-chart-wrapper">
-              <canvas id="dcChart"></canvas>
-            </div>
-            <div class="dc-stats">
-              <div class="dc-stat">
-                <div class="dc-stat-value dc-stat-value--grid" id="dcStatGrid">--</div>
-                <div class="dc-stat-label">kWh From Grid</div>
-              </div>
-              <div class="dc-stat">
-                <div class="dc-stat-value dc-stat-value--self" id="dcStatSelf">--</div>
-                <div class="dc-stat-label">Self-Powered</div>
-              </div>
-              <div class="dc-stat">
-                <div class="dc-stat-value dc-stat-value--bill" id="dcStatBill">--</div>
-                <div class="dc-stat-label">Est. Utility Bill</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- COMPARISON (dark with orange accent border) -->
   <div class="contained accent-top" id="comparison">
     <p class="section-label" style="text-align:center">Compare</p>
@@ -388,6 +395,7 @@
     </div>
   </footer>
 
+  <script src="js/cursor.js"></script>
   <script src="js/main.js"></script>
   <script src="js/terminal-data.js"></script>
   <script src="js/terminal.js"></script>

@@ -208,6 +208,59 @@
   text-transform: uppercase;
 }
 
+/* ========================================
+   Light Theme – for CRM mockup in slideshow
+   ======================================== */
+.dc-container--light {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+}
+.dc-container--light .dc-chart-panel {
+  border-left-color: #e5e7eb;
+}
+.dc-container--light .dc-battery-header {
+  color: #6b7280;
+}
+.dc-container--light .dc-battery-label {
+  color: #6b7280;
+}
+.dc-container--light .dc-battery-value,
+.dc-container--light .dc-backup-value {
+  color: #1a1f2e;
+}
+.dc-container--light .dc-battery-unit {
+  color: #6b7280;
+}
+.dc-container--light .dc-slider-pct {
+  color: #1a1f2e;
+}
+.dc-container--light .dc-slider-name {
+  color: #6b7280;
+}
+.dc-container--light .dc-slider-input {
+  background: linear-gradient(to right, #f57f06 0%, #f57f06 40%, #e5e7eb 40%, #e5e7eb 100%);
+}
+.dc-container--light .dc-slider-input::-webkit-slider-thumb {
+  border-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+.dc-container--light .dc-chart-subtitle {
+  color: #6b7280;
+}
+.dc-container--light .dc-legend {
+  color: #6b7280;
+}
+.dc-container--light .dc-stat {
+  background: #f8f9fa;
+  border-color: #e5e7eb;
+}
+.dc-container--light .dc-stat-value--bill {
+  color: #1a1f2e;
+}
+.dc-container--light .dc-stat-label {
+  color: #6b7280;
+}
+
 /* Responsive */
 @media(max-width:768px) {
   .dc-container {
