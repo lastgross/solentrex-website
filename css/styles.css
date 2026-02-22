@@ -447,9 +447,8 @@ ul{list-style:none}
 .terminal-prompt{color:var(--orange);font-weight:700;user-select:none;flex-shrink:0}
 .terminal-typed{color:var(--blue-light);white-space:pre;display:inline-block;border-right:2px solid var(--orange);font-weight:500}
 .terminal-typed.done{border-right-color:transparent}
-@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes cursorBlink{0%,100%{border-right-color:var(--orange)}50%{border-right-color:transparent}}
 .terminal-typed:not(.done){animation:cursorBlink .8s step-end infinite}
-.terminal-typed:not(.done){border-right-color:var(--orange)}
 .terminal-output{
   opacity:0;transform:translateY(4px);
   transition:opacity .3s,transform .3s;
