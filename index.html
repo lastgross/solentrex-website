@@ -1,42 +1,49 @@
+<!--
+  templateType: page
+  isAvailableForNewContent: true
+  label: Home
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  {{ standard_header_includes }}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Solentrex – AI Solar Sales Platform</title>
   <meta name="description" content="End-to-end AI solar sales platform. Design, propose, finance, and close — all in one system.">
-  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="{{ get_asset_url('solentrex-website/assets/favicon.ico') }}" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="{{ get_asset_url('solentrex-website/css/styles.css') }}">
 </head>
 <body>
+<div class="pg-home">
 
   <!-- NAV -->
   <nav class="nav">
     <div class="nav-pill">
-      <a href="index.html" class="nav-logo"><img src="assets/logo.png" alt="Solentrex"></a>
+      <a href="/home" class="nav-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
       <div class="nav-links">
-        <a href="platform.html">Platform</a>
-        <a href="integrations.html">Integrations</a>
-        <a href="partners.html">Partners</a>
-        <a href="about.html">About</a>
+        <a href="/platform">Platform</a>
+        <a href="/integrations">Integrations</a>
+        <a href="/partners">Partners</a>
+        <a href="/about">About</a>
       </div>
       <div class="nav-actions">
         <a href="https://crm.solentrex.com" class="login-link" target="_blank">Login</a>
-        <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
+        <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
       </div>
       <div class="nav-hamburger"><span></span><span></span><span></span></div>
     </div>
   </nav>
   <div class="mobile-menu">
-    <a href="platform.html">Platform</a>
-    <a href="integrations.html">Integrations</a>
-    <a href="partners.html">Partners</a>
-    <a href="about.html">About</a>
+    <a href="/platform">Platform</a>
+    <a href="/integrations">Integrations</a>
+    <a href="/partners">Partners</a>
+    <a href="/about">About</a>
     <a href="https://crm.solentrex.com" target="_blank">Login</a>
-    <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
+    <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
   </div>
 
   <!-- HERO -->
@@ -55,7 +62,7 @@
         <h1>Solar Design <span>Made Easy</span></h1>
         <p class="tagline">Convert leads to sales. Better, Faster, Smarter.</p>
         <div class="hero-ctas">
-          <a href="demo.html" class="btn btn-orange">Schedule a Demo</a>
+          <a href="/demo" class="btn btn-orange">Schedule a Demo</a>
           <a href="#slideshow" class="btn btn-outline">See How It Works</a>
         </div>
         <div class="hero-stats">
@@ -76,34 +83,52 @@
       <p class="section-sub" style="margin:0 auto">The numbers that set us apart from every other platform.</p>
       <div class="slides-wrapper">
         <div class="slide">
-          <div class="slide-stat">60s</div>
-          <h3>2-Step, 60-Second Proposals</h3>
-          <p>Industry standard is 5–30 minutes. Solentrex does it in two steps, under a minute.</p>
+          <div class="slide-img"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic2.png') }}" alt="60-second proposals"></div>
+          <div class="slide-text">
+            <div class="slide-stat">60s</div>
+            <h3>2-Step, 60-Second Proposals</h3>
+            <p>Industry standard is 5–30 minutes. Solentrex does it in two steps, under a minute.</p>
+          </div>
+        </div>
+        <div class="slide slide-reverse">
+          <div class="slide-img"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic3.png') }}" alt="Per-panel calculation"></div>
+          <div class="slide-text">
+            <div class="slide-stat">1:1</div>
+            <h3>Individual Panel Calculation</h3>
+            <p>Every panel calculated independently — unique azimuth, tilt, shading, and production.</p>
+          </div>
         </div>
         <div class="slide">
-          <div class="slide-stat">1:1</div>
-          <h3>Individual Panel Calculation</h3>
-          <p>Every panel calculated independently — unique azimuth, tilt, shading, and production.</p>
+          <div class="slide-img"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic1.png') }}" alt="AI-powered design"></div>
+          <div class="slide-text">
+            <div class="slide-stat">AI</div>
+            <h3>AI-Powered Design</h3>
+            <p>AI reads utility bills with 100% accuracy. Automatic title checks return 83 data points.</p>
+          </div>
+        </div>
+        <div class="slide slide-reverse">
+          <div class="slide-img"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic8.png') }}" alt="Integrated financing"></div>
+          <div class="slide-text">
+            <div class="slide-stat">3-in-1</div>
+            <h3>Integrated Financing</h3>
+            <p>TPO, PPA, and Loan — plus bring your own local finance partner.</p>
+          </div>
         </div>
         <div class="slide">
-          <div class="slide-stat">AI</div>
-          <h3>AI-Powered Design</h3>
-          <p>AI reads utility bills with 100% accuracy. Automatic title checks return 83 data points.</p>
+          <div class="slide-img"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic7.png') }}" alt="Built-in e-signature"></div>
+          <div class="slide-text">
+            <div class="slide-stat">E-Sign</div>
+            <h3>Built-in E-Signature</h3>
+            <p>Proprietary e-signature at no extra cost. In-person or email.</p>
+          </div>
         </div>
-        <div class="slide">
-          <div class="slide-stat">3-in-1</div>
-          <h3>Integrated Financing</h3>
-          <p>TPO, PPA, and Loan — plus bring your own local finance partner.</p>
-        </div>
-        <div class="slide">
-          <div class="slide-stat">E-Sign</div>
-          <h3>Built-in E-Signature</h3>
-          <p>Proprietary e-signature at no extra cost. In-person or email.</p>
-        </div>
-        <div class="slide">
-          <div class="slide-stat">360°</div>
-          <h3>CRM &amp; Project Management</h3>
-          <p>Lead to activation in one system. Pipeline, tasks, documents, commissions.</p>
+        <div class="slide slide-reverse">
+          <div class="slide-img"><img src="{{ get_asset_url('solentrex-website/assets/images/hpic4.png') }}" alt="CRM and project management"></div>
+          <div class="slide-text">
+            <div class="slide-stat">360°</div>
+            <h3>CRM &amp; Project Management</h3>
+            <p>Lead to activation in one system. Pipeline, tasks, documents, commissions.</p>
+          </div>
         </div>
         <div class="slide-progress"></div>
       </div>
@@ -117,18 +142,39 @@
   <!-- PARTNERS — Stripe style (centered, clean, confident) -->
   <div class="partners-strip-section">
     <p class="partners-label">Trusted Partners &amp; Integrations</p>
-    <div class="partners-strip">
-      <img src="assets/logos/goodleap.svg" alt="GoodLeap" class="partner-logo">
-      <span class="partner-dot"></span>
-      <img src="assets/logos/lightreach.svg" alt="LightReach" class="partner-logo">
-      <span class="partner-dot"></span>
-      <img src="assets/logos/solrite.svg" alt="Solrite" class="partner-logo">
-      <span class="partner-dot"></span>
-      <img src="assets/logos/nearmap.svg" alt="Nearmap" class="partner-logo">
-      <span class="partner-dot"></span>
-      <img src="assets/logos/vexcel.svg" alt="Vexcel" class="partner-logo">
-      <span class="partner-dot"></span>
-      <img src="assets/logos/arcadia.svg" alt="Arcadia" class="partner-logo">
+    <div class="partners-grid">
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/goodleap.png') }}" alt="GoodLeap" class="partner-logo" style="height:24px">
+        <div class="partner-tooltip">TPO &amp; Loan financing — praised as having the best out-of-box production numbers for TPO products.</div>
+      </div>
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/lightreach.png') }}" alt="LightReach" class="partner-logo" style="height:26px">
+        <div class="partner-tooltip">Fully validated TPO products integrated directly into the proposal workflow.</div>
+      </div>
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/solrite.png') }}" alt="Solrite" class="partner-logo" style="height:22px">
+        <div class="partner-tooltip">Financing integration for the Texas market — coming soon.</div>
+      </div>
+      <div class="partner-item">
+        <span style="display:inline-flex;align-items:center;gap:6px"><img src="{{ get_asset_url('solentrex-website/assets/logos/nearmap-icon.png') }}" alt="Nearmap" class="partner-logo" style="height:24px"><img src="{{ get_asset_url('solentrex-website/assets/logos/nearmap.png') }}" alt="Nearmap" class="partner-logo" style="height:26px"></span>
+        <div class="partner-tooltip">HD aerial imagery with multiple DSM data options — see every rooftop in sharp detail.</div>
+      </div>
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/vexcel.png') }}" alt="Vexcel" class="partner-logo" style="height:34px">
+        <div class="partner-tooltip">3D roof intelligence — oblique imagery for precise measurements, pitch detection, and obstruction ID.</div>
+      </div>
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/arcadia.png') }}" alt="Arcadia" class="partner-logo" style="height:22px">
+        <div class="partner-tooltip">11,000+ utilities &amp; 600K tariffs — accurate rate schedules and post-solar bill calculations.</div>
+      </div>
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/smarty.png') }}" alt="Smarty" class="partner-logo" style="height:22px">
+        <div class="partner-tooltip">USPS-connected address verification — instant coordinates and validation for every property.</div>
+      </div>
+      <div class="partner-item">
+        <img src="{{ get_asset_url('solentrex-website/assets/logos/google-maps.png') }}" alt="Google Maps" class="partner-logo" style="height:44px">
+        <div class="partner-tooltip">Satellite imagery and geocoding — powering the map-based design experience.</div>
+      </div>
     </div>
   </div>
 
@@ -138,15 +184,15 @@
     <h2 class="section-title">Everything You Need, Nothing You Don't</h2>
     <p class="section-sub" style="margin-bottom:40px">Purpose-built for solar EPCs and dealers who need speed, control, and scalability.</p>
     <div class="bento-grid stagger">
-      <div class="bento-card span-2 reveal">
+      <div class="bento-card reveal">
         <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <h3>60-Second Proposals</h3>
-        <p>Enter an address and monthly bill — get a complete solar proposal with financing in under a minute. Real-time offset as you add or remove panels.</p>
+        <p>Enter an address and monthly bill — get a complete solar proposal with financing in under a minute.</p>
       </div>
       <div class="bento-card reveal">
         <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
         <h3>-1.1% Production Accuracy</h3>
-        <p>Per-panel NREL weather data, Perez model, LIDAR, and zip-code-level soiling. GoodLeap's best-in-class production numbers.</p>
+        <p>Per-panel NREL weather data, Perez model, LIDAR, and zip-code-level soiling.</p>
       </div>
       <div class="bento-card reveal">
         <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
@@ -163,10 +209,10 @@
         <h3>Battery-Only Proposals</h3>
         <p>Standalone battery workflows with backup mode, pre-loaded appliances, and energy shift.</p>
       </div>
-      <div class="bento-card span-2 reveal">
+      <div class="bento-card reveal">
         <div class="bento-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
         <h3>Proprietary E-Signature</h3>
-        <p>Built-in e-signature with zero per-use charges. Auto-populates contract fields from title check data — 83 data points about property owners.</p>
+        <p>Built-in e-signature with zero per-use charges. Auto-populates from 83 title check data points.</p>
       </div>
     </div>
   </div>
@@ -192,7 +238,7 @@
           <tr><td>Integrated Financing</td><td class="hl y">TPO · PPA · Loan</td><td>Limited or none</td></tr>
           <tr><td>Full CRM + PM</td><td class="hl y">✓</td><td class="n">✗ Separate tools</td></tr>
           <tr><td>Bi-Directional API</td><td class="hl y">✓</td><td>Limited</td></tr>
-          <tr><td>Pricing</td><td class="hl">$10/address, unlimited</td><td>Per-design or per-seat</td></tr>
+          <tr><td>Pricing</td><td class="hl">Per address — unlimited designs, proposals &amp; contracts</td><td>Per-design or per-seat</td></tr>
         </tbody>
       </table>
     </div>
@@ -206,7 +252,7 @@
         <p class="section-label">Developer-Ready</p>
         <h2 class="section-title">Bi-Directional APIs</h2>
         <p class="section-sub">Connect Solentrex to your existing tools. Push and pull data in real-time — CRM sync, lead import, project export, commission reporting. Custom webhooks free of charge.</p>
-        <a href="demo.html" class="btn btn-blue" style="margin-top:8px">Talk to Our Team</a>
+        <a href="/demo" class="btn btn-blue" style="margin-top:8px">Talk to Our Team</a>
       </div>
       <div class="api-visual">
         <div class="api-code">
@@ -234,14 +280,14 @@
     <div class="decor-glow" style="width:400px;height:300px;top:0;left:50%;transform:translateX(-50%);background:rgba(245,127,6,.06)"></div>
     <h2>Ready to Transform Your Solar Business?</h2>
     <p>See how Solentrex can streamline your sales process and close more deals.</p>
-    <a href="demo.html" class="btn btn-orange" style="padding:14px 36px;font-size:1rem">Schedule a Demo</a>
+    <a href="/demo" class="btn btn-orange" style="padding:14px 36px;font-size:1rem">Schedule a Demo</a>
   </div>
 
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="index.html" class="footer-logo"><img src="assets/logo.png" alt="Solentrex"></a>
+        <a href="/home" class="footer-logo"><img src="{{ get_asset_url('solentrex-website/assets/logo.png') }}" alt="Solentrex"></a>
         <p class="footer-tagline">End-to-end AI solar sales platform. Design, propose, finance, and close — all in one system.</p>
         <div class="footer-socials">
           <a href="https://www.facebook.com/people/Solentrex-Inc/61561255088075/" target="_blank" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
@@ -253,10 +299,10 @@
       <div class="footer-nav">
         <h4>Platform</h4>
         <div class="footer-nav-links">
-          <a href="platform.html">Features</a>
-          <a href="integrations.html">Integrations</a>
-          <a href="partners.html">Finance Partners</a>
-          <a href="demo.html">Schedule a Demo</a>
+          <a href="/platform">Features</a>
+          <a href="/integrations">Integrations</a>
+          <a href="/partners">Finance Partners</a>
+          <a href="/demo">Schedule a Demo</a>
           <a href="https://crm.solentrex.com" target="_blank">Login</a>
         </div>
       </div>
@@ -280,6 +326,8 @@
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
+  <script src="{{ get_asset_url('solentrex-website/js/main.js') }}"></script>
+</div>
 </body>
+{{ standard_footer_includes }}
 </html>
