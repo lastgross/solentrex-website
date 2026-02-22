@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Subtle parallax on decor elements ---
-  const decors = document.querySelectorAll('.decor-glow, .decor-dots, .decor-ring, .decor-bar, .decor-diamond, .decor-cross');
+  const decors = document.querySelectorAll('.decor-glow, .decor-dots, .decor-ring, .decor-bar, .decor-diamond, .decor-cross, .fullpage-grid');
   if (decors.length) {
     window.addEventListener('scroll', () => {
       const y = window.scrollY * -0.2;
