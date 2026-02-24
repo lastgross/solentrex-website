@@ -50,13 +50,12 @@
     </div>
   </section>
 
-  <!-- DATA & IMAGERY -->
-  <div class="contained light">
-    <div class="decor-ring" style="bottom:10%;right:4%;width:120px;height:120px"></div>
-    <div class="decor-glow" style="width:300px;height:300px;top:-50px;left:-40px;background:rgba(43,125,233,.06)"></div>
+  <!-- DATA & INTEGRATIONS -->
+  <div class="contained">
+    <div class="decor-dots" style="top:8%;left:3%"></div>
     <p class="section-label">Data &amp; Imagery</p>
     <h2 class="section-title">The Data Behind the Design</h2>
-    <p class="section-sub" style="margin-bottom:40px">We don't just show you a rooftop — we give you the most accurate aerial imagery and utility data available.</p>
+    <p class="section-sub" style="margin-bottom:40px">We don't just show you a rooftop — we give you the most accurate aerial imagery, utility data, and property intelligence available.</p>
     <div class="integration-grid stagger">
       <div class="integration-card reveal">
         <div class="logo-area" style="display:flex;align-items:center;gap:6px"><img src="assets/logos/nearmap-icon.png" alt="Nearmap" style="height:24px;"><img src="assets/logos/nearmap.png" alt="Nearmap" style="height:24px;"></div>
@@ -64,7 +63,8 @@
         <p>High-resolution, frequently updated aerial imagery covering the US and beyond. Multiple DSM data options ensure coverage even in rural areas. See every rooftop in sharp detail for accurate panel placement and shading analysis.</p>
         <span class="tag">Imagery</span>
       </div>
-      <div class="integration-card reveal">
+      <!-- DISABLED: Vexcel (integration pending) -->
+      <div class="integration-card reveal" style="display:none">
         <div class="logo-area"><img src="assets/logos/vexcel.png" alt="Vexcel" style="height:45px;filter:brightness(0) invert(1)"></div>
         <h3>3D Roof Intelligence</h3>
         <p>High-resolution oblique imagery and 3D data for precise roof measurements, pitch detection, and obstruction identification.</p>
@@ -73,19 +73,9 @@
       <div class="integration-card reveal">
         <div class="logo-area"><img src="assets/logos/arcadia.png" alt="Arcadia" style="height:24px;"></div>
         <h3>11,000+ Utilities &amp; 600K Tariffs</h3>
-        <p>Comprehensive utility data integration providing access to rate schedules, Time of Use rates, and accurate post-solar bill calculations across North America.</p>
+        <p>Comprehensive utility data including rate schedules, Time of Use rates, and interval data accurate to 83% — resolved down to zip code for precise post-solar bill calculations across North America.</p>
         <span class="tag">Utility Data</span>
       </div>
-    </div>
-  </div>
-
-  <!-- ADDRESS & VERIFICATION -->
-  <div class="contained">
-    <div class="decor-dots" style="top:8%;left:3%"></div>
-    <p class="section-label">Verification</p>
-    <h2 class="section-title">Address &amp; Property Intelligence</h2>
-    <p class="section-sub" style="margin-bottom:40px">Precise data from the start eliminates errors downstream.</p>
-    <div class="integration-grid stagger">
       <div class="integration-card reveal">
         <div class="logo-area"><img src="assets/logos/smarty.png" alt="Smarty" style="height:24px;"></div>
         <h3>USPS-Connected Coordinates</h3>
@@ -106,38 +96,27 @@
       </div>
       <div class="integration-card reveal">
         <div class="logo-area"><span>NREL</span></div>
-        <h3>Weather &amp; Irradiance Data</h3>
-        <p>NREL weather data, Perez model calculations, and LIDAR measurements for per-panel production accuracy.</p>
+        <h3>NREL Weather Data</h3>
+        <p>TMY and historical irradiance data from NREL's National Solar Radiation Database — location-specific solar resource data grounding every production estimate.</p>
         <span class="tag">Solar Data</span>
       </div>
-    </div>
-  </div>
-
-  <!-- API & WEBHOOKS -->
-  <div class="contained light">
-    <div class="decor-glow" style="width:250px;height:250px;bottom:-40px;right:-30px;background:rgba(245,127,6,.06)"></div>
-    <div class="decor-bar" style="top:15%;left:5%"></div>
-    <div class="api-inner reveal">
-      <div class="api-text">
-        <p class="section-label">Developer-Ready</p>
-        <h2 class="section-title">Bi-Directional APIs &amp; Custom Webhooks</h2>
-        <p class="section-sub">Open REST APIs for every operation. Push leads in, pull proposals out. Sync with your CRM, accounting, or any system in real-time. Custom webhooks created free of charge for early adopters.</p>
-        <a href="demo.html" class="btn btn-outline-dark" style="margin-top:16px">Request API Access</a>
+      <div class="integration-card reveal">
+        <div class="logo-area"><span>Perez</span></div>
+        <h3>Perez Model Calculations</h3>
+        <p>The industry-standard Perez transposition model converts beam and diffuse irradiance to each panel's tilt and azimuth — precision results that account for real sky conditions.</p>
+        <span class="tag">Solar Data</span>
       </div>
-      <div class="api-visual">
-        <div class="api-code" style="background:var(--surface-light);border-color:var(--border-light);color:var(--text-dark-muted)">
-<span style="color:var(--blue)">GET</span> /api/v1/projects/:id
-
-<span style="color:var(--blue)">POST</span> /api/v1/proposals
-<span style="color:var(--blue)">POST</span> /api/v1/leads
-<span style="color:var(--blue)">PUT</span>  /api/v1/projects/:id
-
-<span style="color:#888">// Webhooks</span>
-proposal.created
-contract.signed
-project.status_changed
-payment.received
-        </div>
+      <div class="integration-card reveal">
+        <div class="logo-area"><span>LiDAR</span></div>
+        <h3>LiDAR Panel Measurements</h3>
+        <p>High-resolution LiDAR data captures precise roof geometry, slope, and obstructions — enabling per-panel shading calculations accurate to within ±1%.</p>
+        <span class="tag">Solar Data</span>
+      </div>
+      <div class="integration-card reveal">
+        <div class="logo-area"><span>Soiling</span></div>
+        <h3>Zip-Code Soiling Factors</h3>
+        <p>Location-specific soiling rates applied at the zip-code level — accounting for regional dust, pollen, and pollution to ensure production estimates reflect real-world panel degradation.</p>
+        <span class="tag">Solar Data</span>
       </div>
     </div>
   </div>
@@ -179,15 +158,14 @@ payment.received
           <span>10545 S 182nd Drive</span>
           <span>Goodyear, AZ 85338</span>
           <a href="tel:+14059263030">(405) 926-3030</a>
-          <span>Fax: (602) 894-3920</span>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
       <p class="footer-copy">&copy; 2024 Solentrex Inc. | Powered by <a href="https://www.gritstonetech.com/" target="_blank">Gritstone Technologies</a></p>
       <div class="footer-legal">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Use</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Use</a>
       </div>
     </div>
   </footer>

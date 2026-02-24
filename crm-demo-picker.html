@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Demo — Coordinate Picker</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:Montserrat,sans-serif; background:#1a1a2e; color:#fff; min-height:100vh; padding:24px; }
+h1 { font-size:18px; font-weight:700; margin-bottom:4px; }
+.subtitle { font-size:12px; color:rgba(255,255,255,.5); margin-bottom:20px; }
+
+.picker-layout { display:flex; gap:24px; }
+.picker-main { flex:1; min-width:0; }
+.picker-sidebar { width:320px; flex-shrink:0; }
+
+/* Image label */
+.image-label { font-size:13px; font-weight:600; color:#f57f06; margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px; }
+
+/* Canvas area */
+.canvas-wrap { position:relative; background:#333; border-radius:8px; overflow:hidden; height:480px; cursor:crosshair; }
+.canvas-wrap img { width:100%; height:100%; object-fit:contain; user-select:none; -webkit-user-drag:none; }
+
+/* Markers */
+.marker { position:absolute; width:20px; height:20px; background:#ff3b3b; border:2px solid #fff; border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; z-index:10; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,.4); }
+
+/* Nav buttons */
+.nav-bar { display:flex; gap:8px; margin-top:12px; align-items:center; }
+.nav-btn { background:#f57f06; color:#fff; border:none; border-radius:6px; padding:8px 20px; font-size:12px; font-weight:600; cursor:pointer; font-family:Montserrat,sans-serif; transition:background .15s; }
+.nav-btn:hover { background:#ff9a33; }
+.nav-btn:disabled { opacity:.3; cursor:default; }
+.nav-btn.secondary { background:rgba(255,255,255,.1); }
+.nav-btn.secondary:hover { background:rgba(255,255,255,.2); }
+.nav-counter { font-size:12px; color:rgba(255,255,255,.5); margin:0 8px; }
+
+/* Sidebar */
+.sidebar-section { margin-bottom:20px; }
+.sidebar-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:rgba(255,255,255,.4); margin-bottom:8px; }
+
+.marker-list { list-style:none; }
+.marker-list li { background:rgba(255,255,255,.06); border-radius:6px; padding:8px 12px; margin-bottom:6px; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
+.marker-list .coords { font-weight:600; color:#f57f06; font-variant-numeric:tabular-nums; }
+.marker-list .img-name { color:rgba(255,255,255,.6); }
+.marker-list .remove-btn { background:none; border:none; color:rgba(255,255,255,.3); cursor:pointer; font-size:14px; padding:0 4px; }
+.marker-list .remove-btn:hover { color:#ff3b3b; }
+
+/* Output */
+.output-box { background:#0f0d29; border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:12px; font-family:monospace; font-size:11px; color:#a0ffb0; white-space:pre; overflow-x:auto; line-height:1.6; max-height:260px; overflow-y:auto; }
+.copy-btn { margin-top:8px; }
+
+.empty-msg { font-size:12px; color:rgba(255,255,255,.3); font-style:italic; }
+</style>
+</head>
+<body>
+
+<h1>CRM Demo Coordinate Picker</h1>
+<p class="subtitle">Click on each image to place a marker. Coordinates are percentage-based (0–1) relative to the canvas.</p>
+
+<div class="picker-layout">
+  <div class="picker-main">
+    <div class="image-label" id="img-label">Disable Panel 1</div>
+    <div class="canvas-wrap" id="canvas">
+      <img id="canvas-img" src="img/design-dis1.png" alt="">
+    </div>
+    <div class="nav-bar">
+      <button class="nav-btn secondary" id="btn-prev" disabled>&larr; Prev</button>
+      <span class="nav-counter" id="nav-counter">1 / 4</span>
+      <button class="nav-btn secondary" id="btn-next">Next &rarr;</button>
+      <button class="nav-btn secondary" id="btn-clear" style="margin-left:auto;">Clear Markers</button>
+    </div>
+  </div>
+
+  <div class="picker-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Placed Markers</div>
+      <ul class="marker-list" id="marker-list">
+        <li class="empty-msg" id="empty-msg">Click on the image to place a marker.</li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Output</div>
+      <div class="output-box" id="output-box">// Place markers on all 5 images</div>
+      <button class="nav-btn copy-btn" id="btn-copy">Copy Output</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Each entry shows the BEFORE image (what's on screen when cursor clicks)
+const images = [
+  { key: 'dis1', file: 'img/design-auto.png', label: 'Disable Panel 1 (click on auto design)' },
+  { key: 'dis2', file: 'img/design-dis1.png', label: 'Disable Panel 2 (click on dis1 result)' },
+  { key: 'dis3', file: 'img/design-dis2.png', label: 'Disable Panel 3 (click on dis2 result)' },
+  { key: 'en1',  file: 'img/design-dis3.png', label: 'Enable Panel 1 (click on dis3 result)' },
+  { key: 'en2',  file: 'img/design-en1.png',  label: 'Enable Panel 2 (click on en1 result)' }
+];
+
+let currentIdx = 0;
+// markers[key] = { x, y, el }  — one marker per image
+const markers = {};
+
+const canvas = document.getElementById('canvas');
+const canvasImg = document.getElementById('canvas-img');
+const imgLabel = document.getElementById('img-label');
+const navCounter = document.getElementById('nav-counter');
+const btnPrev = document.getElementById('btn-prev');
+const btnNext = document.getElementById('btn-next');
+const btnClear = document.getElementById('btn-clear');
+const btnCopy = document.getElementById('btn-copy');
+const markerList = document.getElementById('marker-list');
+const emptyMsg = document.getElementById('empty-msg');
+const outputBox = document.getElementById('output-box');
+
+function showImage(idx) {
+  currentIdx = idx;
+  const img = images[idx];
+  canvasImg.src = img.file;
+  imgLabel.textContent = img.label;
+  navCounter.textContent = (idx + 1) + ' / ' + images.length;
+  btnPrev.disabled = idx === 0;
+  btnNext.disabled = idx === images.length - 1;
+
+  // Show/hide marker elements per image
+  document.querySelectorAll('.marker').forEach(el => {
+    el.style.display = el.dataset.key === img.key ? '' : 'none';
+  });
+}
+
+function getContainedImageRect() {
+  // Calculate the actual rendered image area inside the object-fit:contain canvas
+  const box = canvas.getBoundingClientRect();
+  const img = canvasImg;
+  if (!img.naturalWidth || !img.naturalHeight) return { left: 0, top: 0, width: box.width, height: box.height, boxLeft: box.left, boxTop: box.top };
+  const imgRatio = img.naturalWidth / img.naturalHeight;
+  const boxRatio = box.width / box.height;
+  let w, h;
+  if (imgRatio > boxRatio) {
+    w = box.width;
+    h = box.width / imgRatio;
+  } else {
+    h = box.height;
+    w = box.height * imgRatio;
+  }
+  return {
+    left: (box.width - w) / 2,
+    top: (box.height - h) / 2,
+    width: w,
+    height: h,
+    boxLeft: box.left,
+    boxTop: box.top
+  };
+}
+
+canvas.addEventListener('click', e => {
+  const box = canvas.getBoundingClientRect();
+  const ir = getContainedImageRect();
+  // Calculate percentage relative to the actual image area, not the container
+  const xPct = (e.clientX - box.left - ir.left) / ir.width;
+  const yPct = (e.clientY - box.top - ir.top) / ir.height;
+  // Ignore clicks outside the image area
+  if (xPct < 0 || xPct > 1 || yPct < 0 || yPct > 1) return;
+  const key = images[currentIdx].key;
+
+  // Remove old marker for this image
+  if (markers[key]) {
+    markers[key].el.remove();
+  }
+
+  // Create marker element — position relative to container using image offset
+  const m = document.createElement('div');
+  m.className = 'marker';
+  m.dataset.key = key;
+  m.textContent = currentIdx + 1;
+  m.style.left = ((ir.left + ir.width * xPct) / box.width * 100) + '%';
+  m.style.top = ((ir.top + ir.height * yPct) / box.height * 100) + '%';
+  canvas.appendChild(m);
+
+  markers[key] = { x: xPct, y: yPct, el: m };
+
+  updateList();
+  updateOutput();
+});
+
+function updateList() {
+  // Clear list
+  markerList.innerHTML = '';
+  let hasAny = false;
+
+  images.forEach((img, i) => {
+    const mk = markers[img.key];
+    if (!mk) return;
+    hasAny = true;
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>
+        <span class="img-name">${img.label}</span>
+      </span>
+      <span class="coords">x: ${mk.x.toFixed(3)}, y: ${mk.y.toFixed(3)}</span>
+      <button class="remove-btn" data-key="${img.key}">&times;</button>
+    `;
+    markerList.appendChild(li);
+  });
+
+  if (!hasAny) {
+    const li = document.createElement('li');
+    li.className = 'empty-msg';
+    li.id = 'empty-msg';
+    li.textContent = 'Click on the image to place a marker.';
+    markerList.appendChild(li);
+  }
+
+  // Bind remove buttons
+  markerList.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.key;
+      if (markers[key]) {
+        markers[key].el.remove();
+        delete markers[key];
+        updateList();
+        updateOutput();
+      }
+    });
+  });
+}
+
+function updateOutput() {
+  const keys = images.map(i => i.key);
+  const hasAll = keys.every(k => markers[k]);
+
+  if (!keys.some(k => markers[k])) {
+    outputBox.textContent = '// Place markers on all 5 images';
+    return;
+  }
+
+  let lines = ['const panelClicks = {'];
+  keys.forEach((k, i) => {
+    const mk = markers[k];
+    if (mk) {
+      const comma = i < keys.length - 1 ? ',' : '';
+      const pad = k.length < 4 ? ' ' : '';
+      lines.push(`  ${k}:${pad} { x: ${mk.x.toFixed(2)}, y: ${mk.y.toFixed(2)} }${comma}`);
+    } else {
+      const comma = i < keys.length - 1 ? ',' : '';
+      const pad = k.length < 4 ? ' ' : '';
+      lines.push(`  ${k}:${pad} { x: 0.50, y: 0.50 }${comma}  // TODO`);
+    }
+  });
+  lines.push('};');
+  outputBox.textContent = lines.join('\n');
+}
+
+btnPrev.addEventListener('click', () => { if (currentIdx > 0) showImage(currentIdx - 1); });
+btnNext.addEventListener('click', () => { if (currentIdx < images.length - 1) showImage(currentIdx + 1); });
+
+btnClear.addEventListener('click', () => {
+  const key = images[currentIdx].key;
+  if (markers[key]) {
+    markers[key].el.remove();
+    delete markers[key];
+    updateList();
+    updateOutput();
+  }
+});
+
+btnCopy.addEventListener('click', () => {
+  navigator.clipboard.writeText(outputBox.textContent).then(() => {
+    const orig = btnCopy.textContent;
+    btnCopy.textContent = 'Copied!';
+    setTimeout(() => { btnCopy.textContent = orig; }, 1500);
+  });
+});
+
+showImage(0);
+</script>
+</body>
+</html>

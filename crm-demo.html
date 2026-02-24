@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solentrex CRM — Interactive Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: Montserrat, sans-serif; background: #1a1a2e; color: #212121; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:8px; }
+.demo-wrapper { width:100%; }
+
+/* Inline annotation — floats near the action */
+.annotation { position:fixed; bottom:80px; right:20px; background:#0f0d29; color:#fff; padding:10px 16px; border-radius:8px; font-size:11px; font-weight:500; z-index:200; opacity:0; pointer-events:none; transition:all .35s ease; box-shadow:0 4px 20px rgba(0,0,0,.5); max-width:320px; line-height:1.5; display:none; }
+.annotation.visible { opacity:0; }
+.annotation .ann-label { font-size:9px; text-transform:uppercase; letter-spacing:.8px; color:#f57f06; margin-bottom:3px; }
+
+/* Fake cursor */
+.fake-cursor { position:fixed; width:20px; height:20px; z-index:9999; pointer-events:none; opacity:0; transition:opacity .2s; }
+.fake-cursor.visible { opacity:1; }
+.fake-cursor svg { width:20px; height:20px; filter:drop-shadow(1px 2px 3px rgba(0,0,0,.4)); }
+.fake-cursor.clicking svg { transform:scale(.85); }
+.cursor-ring { position:fixed; width:30px; height:30px; border:2px solid #f57f06; border-radius:50%; z-index:9998; pointer-events:none; opacity:0; transform:translate(-50%,-50%) scale(0); }
+.cursor-ring.pop { opacity:1; transform:translate(-50%,-50%) scale(1); transition:all .3s ease-out; }
+.cursor-ring.fade { opacity:0; transform:translate(-50%,-50%) scale(1.5); transition:all .3s ease-out; }
+
+/* Cursor tooltip — follows above the fake cursor */
+.cursor-tip { position:fixed; z-index:10000; pointer-events:none; background:#0f0d29; color:#fff; font-size:10px; font-weight:500; padding:5px 10px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .25s, left .4s ease, top .4s ease; max-width:240px; white-space:normal; line-height:1.4; text-align:center; }
+.cursor-tip.visible { opacity:1; }
+.cursor-tip::after { content:''; position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:#0f0d29; }
+
+/* Design toolbar tool buttons */
+.tool-btn { width:30px; height:30px; border:1px solid #eaeef0; border-radius:5px; display:flex; align-items:center; justify-content:center; cursor:default; transition:all .2s; background:#fff; }
+.tool-btn img { width:16px; height:16px; }
+.tool-btn.active { background:#0258a8; border-color:#0258a8; }
+
+/* Controls bar — defined in responsive section below */
+
+/* CRM Window */
+.crm-window { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+.crm-titlebar { background:#f2f2f2; padding:8px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #eaeef0; }
+.crm-dot-r { width:12px; height:12px; border-radius:50%; background:#ff5f57; }
+.crm-dot-y { width:12px; height:12px; border-radius:50%; background:#ffbd2e; }
+.crm-dot-g { width:12px; height:12px; border-radius:50%; background:#28c840; }
+.crm-titlebar-text { margin-left:12px; font-size:12px; color:#72767a; font-weight:500; }
+
+/* Stepper */
+.crm-stepper { display:flex; border-bottom:1px solid #eaeef0; background:#fcfcfc; }
+.crm-step { flex:1; padding:10px 12px; font-size:11px; font-weight:600; color:#72767a; text-transform:uppercase; text-align:center; position:relative; cursor:pointer; transition:all .3s; }
+.crm-step:hover { color:#0258a8; background:rgba(2,88,168,.05); }
+.crm-step.active { color:#0258a8; }
+.crm-step.active::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:#0258a8; }
+.crm-step.completed { color:#28c840; }
+.crm-step.completed::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:#28c840; }
+.crm-step-num { display:inline-flex; width:22px; height:22px; border-radius:50%; background:#eaeef0; color:#72767a; font-size:10px; align-items:center; justify-content:center; margin-right:6px; }
+.crm-step.active .crm-step-num { background:#0258a8; color:#fff; }
+.crm-step.completed .crm-step-num { background:#28c840; color:#fff; }
+
+/* Content */
+.crm-content { padding:0; height:500px; position:relative; overflow:hidden; }
+.crm-panel { display:none; padding:16px 20px; animation:fadeIn .4s ease; height:100%; overflow-y:auto; }
+.crm-panel.active { display:block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* Hover tooltips */
+[data-tip] { position:relative; cursor:default; }
+[data-tip]::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%) scale(.9); background:#0f0d29; color:#fff; font-size:11px; font-weight:500; padding:6px 10px; border-radius:6px; white-space:nowrap; pointer-events:none; opacity:0; transition:all .2s ease; z-index:100; max-width:280px; white-space:normal; text-align:center; line-height:1.4; }
+[data-tip]:hover::after { opacity:1; transform:translateX(-50%) scale(1); }
+/* Tooltip arrow */
+[data-tip]::before { content:''; position:absolute; bottom:calc(100% + 2px); left:50%; transform:translateX(-50%); border:4px solid transparent; border-top-color:#0f0d29; pointer-events:none; opacity:0; transition:opacity .2s; z-index:100; }
+[data-tip]:hover::before { opacity:1; }
+
+/* Form elements */
+.f-row { display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+.f-group { flex:1; min-width:140px; }
+.f-label { font-size:10px; color:#72767a; font-weight:500; margin-bottom:3px; text-transform:uppercase; letter-spacing:.3px; }
+.f-input { border:1px solid #eaeef0; border-radius:5px; padding:8px 10px; font-size:11px; font-weight:500; color:#000; font-family:Montserrat,sans-serif; width:100%; background:#fff; min-height:34px; display:flex; align-items:center; transition:border-color .2s; overflow:visible; white-space:nowrap; }
+.f-input.typing { border-color:#0258a8; }
+.f-input .cursor { display:inline-block; width:2px; height:16px; background:#0258a8; animation:blink .6s infinite; margin-left:1px; vertical-align:middle; }
+@keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
+.f-select { border:1px solid #eaeef0; border-radius:5px; padding:8px 10px; font-size:11px; font-weight:500; color:#000; width:100%; background:#fff url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%2372767a'/%3E%3C/svg%3E") right 8px center/16px no-repeat; min-height:34px; display:flex; align-items:center; gap:6px; position:relative; }
+
+/* Material-style notched outline select */
+.mat-select-wrap { position:relative; margin-bottom:14px; z-index:1; }
+.mat-select-outline { position:relative; border:1px solid #eaeef0; border-radius:6px; min-height:54px; background:#fff; cursor:pointer; transition:border-color .2s; display:flex; align-items:center; padding:12px 36px 12px 14px; }
+.mat-select-outline::after { content:''; position:absolute; right:12px; top:50%; transform:translateY(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:5px solid #72767a; transition:transform .2s; }
+.mat-select-outline.open { border-color:#0258a8; }
+.mat-select-outline.open::after { transform:translateY(-50%) rotate(180deg); }
+.mat-select-label { position:absolute; top:-8px; left:10px; background:#fff; padding:0 4px; font-size:10.5px; font-weight:500; color:#72767a; text-transform:uppercase; letter-spacing:.3px; }
+.mat-select-outline.open .mat-select-label,
+.mat-select-outline.filled .mat-select-label { color:#0258a8; }
+.mat-select-value { font-size:13px; font-weight:500; color:#212121; display:flex; align-items:center; gap:8px; flex:1; min-height:20px; }
+.mat-select-value.placeholder { color:#a0a0a0; }
+.mat-select-wrap:has(.mat-select-menu.open) { z-index:10; }
+.mat-select-menu { position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #eaeef0; border-top:none; border-radius:0 0 6px 6px; box-shadow:0 4px 16px rgba(0,0,0,.12); max-height:0; overflow:hidden; transition:max-height .25s ease; z-index:60; }
+.mat-select-menu.open { max-height:280px; overflow-y:auto; }
+.mat-select-item { padding:12px 14px; font-size:12px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:10px; border-bottom:1px solid #f0f0f0; transition:background .12s; }
+.mat-select-item:last-child { border-bottom:none; }
+.mat-select-item:hover, .mat-select-item.selecting { background:#f1fbfd; }
+.mat-select-item.selected { background:#e8f4fd; color:#0258a8; }
+.mat-select-item .item-logo { height:20px; border-radius:3px; }
+.mat-select-item .item-sub { font-size:10px; color:#72767a; font-weight:400; margin-top:1px; }
+
+/* Dropdown */
+.f-dropdown { border:1px solid #eaeef0; border-top:none; border-radius:0 0 5px 5px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,.1); overflow:hidden; max-height:0; transition:max-height .3s ease; }
+.f-dropdown.open { max-height:200px; }
+.f-dropdown-item { padding:8px 10px; font-size:11px; cursor:pointer; display:flex; gap:6px; border-bottom:1px solid #f0f0f0; transition:background .15s; }
+.f-dropdown-item:hover, .f-dropdown-item.selecting { background:#f1fbfd; }
+.f-dropdown-item .name { font-weight:600; }
+.f-dropdown-item .addr { color:#72767a; }
+
+/* Project type tiles */
+.proj-tiles { display:flex; gap:10px; margin:10px 0; }
+.proj-tile { border:2px solid #eaeef0; border-radius:5px; padding:10px 14px; font-size:11px; font-weight:600; text-transform:uppercase; display:flex; align-items:center; gap:6px; transition:all .3s; }
+.proj-tile.active { border-color:#0258a8; background:#0258a8; color:#fff; transition:all .3s ease; }
+.proj-tile.active img { filter:brightness(10); }
+
+/* Existing solar radio */
+.solar-radio { margin:10px 0; padding:8px 12px; border:1px solid #eaeef0; border-radius:5px; background:#fcfcfc; }
+.solar-radio .radio-label { font-size:11px; font-weight:500; color:#212121; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+.solar-radio .radio-label .info-icon { width:16px; height:16px; background:#eaeef0; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; color:#72767a; cursor:help; }
+.radio-options { display:flex; gap:16px; }
+.radio-opt { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500; cursor:pointer; }
+.radio-circle { width:18px; height:18px; border-radius:50%; border:3px solid #e7f1f2; transition:all .2s; }
+.radio-opt.selected .radio-circle { border-color:#0258a8; background:radial-gradient(circle, #0258a8 40%, transparent 41%); }
+
+/* Content box */
+.c-box { border:1px solid #F0F0F0; border-radius:5px; margin-bottom:10px; }
+.c-box-head { background:#f2f2f2; border-radius:5px 5px 0 0; padding:6px 12px; min-height:30px; border-bottom:1px solid #F0F0F0; display:flex; align-items:center; }
+.c-box-title { color:#2c2d31; font-size:11px; font-weight:600; text-transform:uppercase; }
+.c-box-body { padding:10px 12px; }
+
+/* Two column */
+.two-col { display:flex; gap:14px; }
+.col-main { flex:1.5; }
+.col-side { flex:1.2; min-width:320px; }
+
+/* Map placeholder */
+.map-placeholder { background:#e8e8e8; border-radius:5px; min-height:200px; display:flex; align-items:center; justify-content:center; color:#72767a; font-size:12px; position:relative; overflow:hidden; border:1px solid #eaeef0; }
+.map-placeholder img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+
+/* Spec list */
+.spec-list { list-style:none; }
+.spec-list li { padding:6px 0; border-bottom:1px solid #eaeef0; display:flex; justify-content:space-between; font-size:11px; }
+.spec-list .lbl { color:#717171; font-weight:500; }
+.spec-list .val { font-weight:600; color:#212121; }
+
+/* Design canvas — crossfade container */
+.design-canvas { background:#333; border-radius:5px; height:340px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.design-canvas img { position:absolute; width:100%; height:100%; object-fit:contain; border-radius:6px; transition:opacity .4s ease; }
+
+/* Toolbar */
+.toolbar { display:flex; justify-content:space-between; align-items:center; padding:6px 0; margin-bottom:8px; border-bottom:1px solid #eaeef0; flex-wrap:wrap; gap:6px; }
+.pill-toggle { display:flex; background:#f6f8f9; border-radius:4px; padding:3px; gap:3px; }
+.pill { padding:0 14px; height:30px; display:flex; align-items:center; font-size:12px; font-weight:500; color:#707070; border-radius:4px; cursor:default; transition:all .3s; }
+.pill.active { background:#f57f06; color:#fff; }
+.toolbar-right { display:flex; align-items:center; gap:8px; }
+.offset-box { border:1px solid #eaeef0; border-radius:5px; height:30px; padding:0 10px; display:flex; align-items:center; font-size:11px; gap:4px; }
+.btn-crm { height:32px; padding:0 12px; border-radius:5px; border:none; font-size:11px; font-weight:600; cursor:default; font-family:Montserrat,sans-serif; display:flex; align-items:center; }
+.btn-primary { background:#0258a8; color:#fff; }
+.btn-grey { background:#f6f8f9; color:#72767a; border:1px solid #E7E7EB; }
+.btn-orange { background:#f57f06; color:#fff; }
+
+/* Finance */
+.finance-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+.finance-card { background:#f6f8f9; border-radius:6px; padding:16px; text-align:center; }
+.finance-card .val { font-size:20px; font-weight:700; color:#0258a8; }
+.finance-card .lbl { font-size:11px; color:#72767a; margin-top:4px; }
+.finance-banner { background:linear-gradient(135deg,#0258a8,#0370d4); color:#fff; border-radius:6px; padding:12px 16px; font-size:13px; font-weight:600; text-align:center; margin-bottom:14px; }
+.partner-badge { display:inline-flex; align-items:center; gap:6px; background:#f6f8f9; border:1px solid #eaeef0; border-radius:6px; padding:8px 16px; font-size:13px; font-weight:600; color:#0258a8; }
+
+/* E-sign */
+.esign-split { display:flex; min-height:0; height:100%; }
+.esign-doc { flex:2; padding:20px; border-right:1px solid #eaeef0; position:relative; }
+.doc-page { background:#f9f9f9; border:1px solid #eaeef0; border-radius:4px; padding:12px 16px; min-height:0; }
+.doc-line { height:7px; background:#e5e5e5; border-radius:4px; margin-bottom:8px; }
+.doc-line.m { width:70%; }
+.doc-line.s { width:40%; }
+.sig-field { margin:12px 0; padding:8px 12px; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.9); border:1px solid #e7f1f2; position:relative; }
+.sig-field::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:#f57f06; }
+.sig-badge { background:#f57f06; color:#fff; font-size:8px; border-radius:4px; padding:2px 6px; position:absolute; top:-8px; left:8px; font-weight:600; }
+.esign-signers { flex:1; padding:20px; min-width:200px; display:flex; flex-direction:column; }
+.signer { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #eaeef0; }
+.signer-avatar { width:40px; height:40px; border-radius:50%; background:#f6f8f9; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#72767a; flex-shrink:0; }
+.signer-role { font-size:11px; color:#72767a; }
+.signer-name { font-size:13px; font-weight:600; }
+.signer-status { margin-left:auto; font-size:10px; font-weight:600; padding:3px 8px; border-radius:4px; }
+.signer-status.pending { background:#ffc44d33; color:#ffc44d; }
+.signer-status.signed { background:#28c84033; color:#28c840; }
+
+/* Auto utility indicator */
+.auto-indicator { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:6px; font-size:12px; font-weight:500; transition:all .4s; }
+.auto-indicator.loading { background:#f6f8f9; color:#72767a; }
+.auto-indicator.done { background:rgba(40,200,64,.08); color:#28c840; border:1px solid rgba(40,200,64,.2); }
+.spinner { width:16px; height:16px; border:2px solid #eaeef0; border-top-color:#0258a8; border-radius:50%; animation:spin .6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Footer */
+.crm-footer { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; border-top:1px solid #eaeef0; background:#fcfcfc; }
+
+/* Highlight */
+.highlight { animation:highlightPulse .6s ease; }
+@keyframes highlightPulse { 0% { background:rgba(245,127,6,.15); } 100% { background:transparent; } }
+
+/* Seeking overlay */
+.seeking-overlay { position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; z-index:50; font-size:13px; font-weight:600; color:#72767a; }
+.seeking-overlay .spinner { width:20px; height:20px; margin-right:8px; }
+
+/* Battery config section */
+.battery-config { background:#f6f8f9; border-radius:6px; padding:16px; }
+.battery-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.battery-name { font-size:14px; font-weight:600; color:#212121; }
+.battery-qty { font-size:12px; color:#72767a; }
+.battery-stat { display:flex; justify-content:space-between; font-size:12px; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #eaeef0; }
+.battery-stat .lbl { color:#72767a; }
+.battery-stat .val { font-weight:600; color:#212121; }
+.battery-mode-row { display:flex; gap:12px; margin:10px 0; }
+.battery-radio { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; cursor:pointer; padding:6px 12px; border-radius:4px; border:1px solid #eaeef0; background:#fff; transition:all .2s; }
+.battery-radio.active { border-color:#0258a8; background:#e8f4fd; color:#0258a8; }
+.battery-radio .radio-dot { width:14px; height:14px; border-radius:50%; border:2px solid #ccc; transition:all .2s; }
+.battery-radio.active .radio-dot { border-color:#0258a8; background:radial-gradient(circle, #0258a8 35%, transparent 36%); }
+
+/* Energy shift slider */
+.slider-wrap { margin:12px 0; }
+.slider-labels { display:flex; justify-content:space-between; font-size:11px; color:#72767a; margin-bottom:6px; }
+.slider-track { position:relative; height:8px; background:#eaeef0; border-radius:4px; cursor:pointer; }
+.slider-fill { position:absolute; left:0; top:0; height:100%; background:linear-gradient(90deg,#0258a8,#0370d4); border-radius:4px; transition:width .4s ease; }
+.slider-thumb { position:absolute; top:50%; width:20px; height:20px; background:#fff; border:2px solid #0258a8; border-radius:50%; transform:translate(-50%,-50%); transition:left .4s ease; box-shadow:0 2px 6px rgba(0,0,0,.15); }
+.slider-values { display:flex; justify-content:space-between; margin-top:8px; }
+.slider-val { text-align:center; font-size:11px; }
+.slider-val strong { display:block; font-size:13px; color:#0258a8; }
+
+/* Battery side panel */
+.battery-panel-backdrop { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.35); z-index:299; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+.battery-panel-backdrop.open { opacity:1; pointer-events:auto; }
+.battery-panel { position:fixed; top:0; right:-500px; width:480px; height:100%; background:#fff; z-index:300; transition:right .3s ease; box-shadow:-4px 0 20px rgba(0,0,0,.2); overflow-y:auto; }
+.battery-panel.open { right:0; }
+.bp-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid #eaeef0; }
+.bp-header h3 { font-size:15px; font-weight:700; margin:0; }
+.bp-close { width:32px; height:32px; border-radius:50%; border:none; background:#f6f8f9; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#72767a; }
+.bp-body { padding:20px; }
+.bp-section { margin-bottom:20px; }
+.bp-section-title { font-size:11px; font-weight:600; text-transform:uppercase; color:#72767a; letter-spacing:.3px; margin-bottom:8px; }
+.bp-field { margin-bottom:14px; }
+.bp-field-label { font-size:11px; color:#72767a; margin-bottom:4px; font-weight:500; }
+.bp-select-disabled { border:1px solid #eaeef0; border-radius:6px; padding:10px 14px; font-size:13px; font-weight:500; color:#999; background:#f9f9f9; }
+.bp-qty-row { display:flex; align-items:center; gap:10px; }
+.bp-qty-btn { width:32px; height:32px; border-radius:6px; border:1px solid #eaeef0; background:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#72767a; }
+.bp-qty-input { width:50px; text-align:center; border:1px solid #eaeef0; border-radius:6px; padding:8px; font-size:14px; font-weight:600; font-family:Montserrat,sans-serif; }
+.bp-capacity { font-size:12px; color:#72767a; margin-left:8px; }
+
+/* Load prioritization */
+.load-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.load-total { font-size:12px; color:#72767a; }
+.load-total strong { color:#0258a8; }
+.load-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:12px; }
+.load-item:last-child { border-bottom:none; }
+.load-cb { width:18px; height:18px; border-radius:4px; border:2px solid #ccc; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; flex-shrink:0; background:#fff; }
+.load-cb.checked { background:#0258a8; border-color:#0258a8; }
+.load-cb.checked::after { content:'\2713'; color:#fff; font-size:11px; font-weight:700; }
+.load-cb.disabled { background:#f0f0f0; border-color:#ddd; cursor:not-allowed; opacity:.5; }
+.load-name { flex:1; font-weight:500; }
+.load-kw { font-weight:600; color:#212121; min-width:60px; text-align:right; }
+.load-item.disabled-load { opacity:.45; }
+
+.bp-save { width:100%; padding:12px; border:none; border-radius:6px; background:#0258a8; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:Montserrat,sans-serif; margin-top:16px; }
+
+/* Battery panel — compact layout */
+.battery-panel .bp-section { margin-bottom:12px; }
+.battery-panel .bp-section-title { margin-bottom:4px; font-size:10px; }
+.battery-panel .bp-field { margin-bottom:8px; }
+.battery-panel .bp-body { padding:14px 16px; }
+.battery-panel .slider-wrap { margin:6px 0; }
+.battery-panel .slider-labels { margin-bottom:3px; }
+.battery-panel .slider-values { margin-top:4px; }
+.battery-panel .battery-mode-row { margin:6px 0; }
+
+
+/* Responsive */
+@media (max-width:768px) {
+  .two-col { flex-direction:column; }
+  .col-side { min-width:0 !important; }
+  .esign-split { flex-direction:column; }
+  .finance-grid { grid-template-columns:1fr 1fr !important; }
+  .f-row { flex-direction:column; }
+  .crm-stepper { flex-wrap:wrap; }
+  .crm-step { font-size:9px; padding:8px 6px; }
+  .crm-step-num { width:18px; height:18px; font-size:9px; margin-right:3px; }
+  .crm-panel { padding:16px !important; }
+  .crm-content { height:auto; min-height:380px; }
+  .toolbar { flex-direction:column; align-items:flex-start; }
+  .toolbar-right { flex-wrap:wrap; }
+  .design-canvas { height:280px; }
+  .map-placeholder { min-height:180px !important; }
+  #step0-side { flex-direction:column !important; }
+  .battery-panel { width:100%; right:-100%; }
+  .battery-panel.open { right:0; }
+  .proj-tiles { flex-direction:column; }
+  .f-group { min-width:0 !important; }
+  .annotation { max-width:250px; font-size:10px; bottom:60px !important; right:10px !important; }
+  .cursor-tip { display:none; }
+}
+@media (max-width:480px) {
+  .finance-grid { grid-template-columns:1fr !important; }
+  .crm-step span:not(.crm-step-num) { display:none; }
+  .crm-step .crm-step-num { margin:0; }
+  .finance-card .val { font-size:16px; }
+  .esign-doc { padding:12px; }
+  .doc-page { padding:10px; font-size:10px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="demo-wrapper">
+
+  <div class="crm-window">
+    <div class="crm-titlebar">
+      <div class="crm-dot-r"></div><div class="crm-dot-y"></div><div class="crm-dot-g"></div>
+      <div class="crm-titlebar-text">crm.solentrex.com</div>
+    </div>
+    <div class="crm-stepper">
+      <div class="crm-step active" data-step="0"><span class="crm-step-num">1</span>Basic Details</div>
+      <div class="crm-step" data-step="1"><span class="crm-step-num">2</span>Design</div>
+      <div class="crm-step" data-step="2"><span class="crm-step-num">3</span>Proposal</div>
+      <div class="crm-step" data-step="3"><span class="crm-step-num">4</span>Finance</div>
+      <div class="crm-step" data-step="4"><span class="crm-step-num">5</span>E-Signature</div>
+    </div>
+
+    <div class="crm-content" id="crm-content">
+
+      <!-- STEP 0: Create Project -->
+      <div class="crm-panel active" id="step-0">
+        <div class="two-col">
+          <div class="col-main" id="step0-modules">
+
+            <div class="module">
+
+              <div class="c-box">
+                <div class="c-box-head"><div class="c-box-title" data-tip="Enter address to auto-run title check, utility detection, and satellite imagery">Address Details *</div></div>
+                <div class="c-box-body">
+                  <div class="f-input" id="address-input"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="module">
+
+              <div class="f-label" style="margin-bottom:6px;" data-tip="Determines system configuration and available finance products">Select Project Type *</div>
+              <div class="proj-tiles">
+                <div class="proj-tile" id="tile-solar"><img src="https://crm.solentrex.com/assets/image/individual-icon.svg" alt="" style="width:22px;height:22px;"> Solar PV Project</div>
+                <div class="proj-tile" id="tile-battery"><img src="https://crm.solentrex.com/assets/image/BATTERY-ONLY-PROJECT.svg" alt="" style="width:22px;height:22px;"> Battery Only Project</div>
+              </div>
+            </div>
+
+            <div class="module">
+
+              <div class="solar-radio">
+                <div class="radio-label">This customer already has a solar panel installed at home. <span class="info-icon" title="This will check the customer's solar tariff calculation">i</span></div>
+                <div class="radio-options">
+                  <div class="radio-opt" id="radio-yes"><div class="radio-circle"></div> Yes</div>
+                  <div class="radio-opt selected" id="radio-no"><div class="radio-circle"></div> No</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="module">
+
+              <div class="c-box">
+                <div class="c-box-head"><div class="c-box-title" data-tip="Auto-filled from title check — property owners returned from address lookup">Client Details</div></div>
+                <div class="c-box-body">
+                  <div class="f-group" style="margin-bottom:10px;">
+                    <div class="f-label">Select Client (Auto-Filled)</div>
+                    <div class="f-select" id="client-select"></div>
+                    <div class="f-dropdown" id="client-dropdown">
+                      <div class="f-dropdown-item" data-idx="0"><span class="name">Jane Doe</span><span class="addr">| 123 Sunnyvale Dr, Phoenix, AZ 85001</span></div>
+                      <div class="f-dropdown-item" data-idx="1"><span class="name">John Doe</span><span class="addr">| 123 Sunnyvale Dr, Phoenix, AZ 85001</span></div>
+                    </div>
+                  </div>
+                  <div class="f-row">
+                    <div class="f-group"><div class="f-label">First Name *</div><div class="f-input" id="fname"></div></div>
+                    <div class="f-group"><div class="f-label">Last Name *</div><div class="f-input" id="lname"></div></div>
+                  </div>
+                  <div class="f-row">
+                    <div class="f-group"><div class="f-label">Email *</div><div class="f-input" id="email"></div></div>
+                    <div class="f-group"><div class="f-label">Phone</div><div class="f-input" id="phone"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-side" id="step0-side" style="display:flex;gap:14px;min-width:0;">
+
+            <!-- Left: Address / Utility / Energy -->
+            <div style="flex:1;min-width:0;">
+              <div class="module" id="right-panel-box">
+
+                <div class="content-box br-0" style="border:1px solid #F0F0F0;border-radius:6px;overflow:hidden;">
+                  <!-- Address section -->
+                  <aside class="body-grid" style="border-bottom:1px solid #F0F0F0;">
+                    <div style="background:#f2f2f2;padding:8px 16px;border-bottom:1px solid #F0F0F0;"><h3 style="color:#2c2d31;font-size:12px;font-weight:600;text-transform:uppercase;margin:0;">Address</h3></div>
+                    <div style="padding:14px 16px;font-size:13px;color:#72767a;" id="side-address">Please add address</div>
+                  </aside>
+                  <!-- Utility Details section -->
+                  <aside class="body-grid" style="border-bottom:1px solid #F0F0F0;">
+                    <div style="background:#f2f2f2;padding:8px 16px;border-bottom:1px solid #F0F0F0;"><h3 style="color:#2c2d31;font-size:12px;font-weight:600;text-transform:uppercase;margin:0;" data-tip="Utility provider and tariff auto-detected from address">Utility Details</h3></div>
+                    <div style="padding:14px 16px;background:#fff;">
+                      <div class="f-group" style="margin-bottom:10px;"><div class="f-label">Utility Provider *</div><div class="f-select" id="utility"></div></div>
+                      <div class="f-group"><div class="f-label">Tariff Details *</div><div class="f-select" id="tariff"></div></div>
+                    </div>
+                  </aside>
+                  <!-- Energy Usage section -->
+                  <aside class="body-grid">
+                    <div style="padding:10px 16px;"><h3 style="color:#2c2d31;font-size:12px;font-weight:600;text-transform:uppercase;margin:0 0 8px;" data-tip="AI reads the utility bill automatically — extracts 12 months of usage data">Energy Usage</h3>
+                      <ul style="list-style:none;display:flex;gap:0;margin:0 0 12px;padding:0;">
+                        <li id="pill-upload" style="padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid #f57f06;color:#f57f06;">Upload Bill</li>
+                        <li id="pill-annual" style="padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#72767a;">Annual Energy</li>
+                        <li id="pill-monthly" style="padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#72767a;">Monthly Average</li>
+                      </ul>
+                      <div id="bill-upload" style="display:none;"></div>
+                      <div id="upload-area" style="border:2px dashed #eaeef0;border-radius:5px;padding:14px;text-align:center;">
+                        <img src="https://crm.solentrex.com/assets/image/utility-icon.svg" alt="" style="width:60px;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
+                        <div style="font-size:13px;font-weight:600;color:#212121;margin-bottom:4px;">Upload Utility Bill</div>
+                        <div style="font-size:12px;color:#72767a;">Drag and drop your File here or<br><span style="color:#0258a8;font-weight:500;cursor:pointer;">Browse</span></div>
+                      </div>
+                    </div>
+                  </aside>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Map / Banner area -->
+            <div style="flex:1;min-width:0;">
+              <!-- Initial banner (before address) -->
+              <div id="map-banner" style="text-align:center;padding:24px 16px;">
+                <div style="font-size:14px;font-weight:700;color:#2c2d31;text-transform:uppercase;margin-bottom:4px;">Create New Project</div>
+                <p style="font-size:11px;color:#72767a;line-height:1.5;margin-bottom:14px;">Enter the basic details and submit the<br>required documents to complete the process.</p>
+                <img src="https://crm.solentrex.com/assets/image/lead-banner.svg" alt="lead-banner" style="max-width:100%;height:auto;">
+              </div>
+              <!-- Satellite map (after address) -->
+              <div id="map-area" class="map-placeholder" style="height:260px;min-height:0;display:none;"><img src="img/demo-satellite.png" alt="Satellite view"></div>
+              <div id="map-tabs" class="pill-toggle" style="margin-top:10px;display:none;">
+                <div class="pill active">Nearmap</div>
+                <div class="pill">Google Map</div>
+                <div class="pill">Smarty</div>
+                <div class="pill">Google Solar</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Design -->
+      <div class="crm-panel" id="step-1">
+        <div class="toolbar">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="pill-toggle">
+              <div class="pill active">Plan View</div>
+              <div class="pill">Aerial View</div>
+            </div>
+            <span style="font-size:12px;color:#72767a;" id="design-address"></span>
+          </div>
+          <div class="toolbar-right">
+            <div class="tool-btn" id="tb-seg" title="Segmentation Line"><img src="https://crm.solentrex.com/assets/image/disable-segment.svg" alt="Segments" id="tb-seg-img"></div>
+            <div class="tool-btn" id="tb-tree" title="Tree Obstruction"><img src="https://crm.solentrex.com/assets/image/tree-btn-design.svg" alt="Trees" id="tb-tree-img"></div>
+            <div class="tool-btn" id="tb-irr" title="Irradiance"><img src="https://crm.solentrex.com/assets/image/slri-2.svg" alt="Irradiance" id="tb-irr-img"></div>
+            <div class="offset-box" data-tip="Percentage of energy consumption covered by solar production">Offset: <strong id="offset-val">&mdash;</strong></div>
+            <div class="btn-crm btn-primary" id="save-design-btn">Save Design</div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="col-main">
+            <div class="design-canvas" id="design-canvas">
+              <img id="design-img-a" src="img/demo-satellite.png" alt="Design canvas" style="opacity:1;">
+              <img id="design-img-b" src="" alt="" style="opacity:0;">
+            </div>
+          </div>
+          <div class="col-side">
+            <div class="c-box"><div class="c-box-head"><div class="c-box-title" data-tip="Per-panel production and shading — calculated individually, not segment-averaged">Building Insights</div></div><div class="c-box-body" style="padding:0 10px;"><ul class="spec-list" id="building-specs"></ul></div></div>
+            <div class="c-box"><div class="c-box-head"><div class="c-box-title" data-tip="Inverter sizing, DC/AC ratio, and clipping analysis">Inverter Insights</div></div><div class="c-box-body" style="padding:0 10px;"><ul class="spec-list" id="inverter-specs"></ul></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Finance -->
+      <div class="crm-panel" id="step-3">
+        <div style="font-size:16px;font-weight:700;color:#2c2d31;margin-bottom:20px;">Edit Finance Option</div>
+        <div class="two-col">
+          <div class="col-main">
+            <!-- Finance Company dropdown -->
+            <div class="mat-select-wrap" id="fc-wrap">
+              <div class="mat-select-outline" id="fc-outline">
+                <span class="mat-select-label">Finance Company *</span>
+                <div class="mat-select-value placeholder" id="fc-value">Select a finance company</div>
+              </div>
+              <div class="mat-select-menu" id="fc-menu">
+                <div class="mat-select-item" data-val="cash"><span>Cash</span></div>
+                <div class="mat-select-item" data-val="lightreach"><img class="item-logo" src="https://crm.solentrex.com/assets/image/company-logos/goodleap.png" alt="" style="filter:hue-rotate(180deg)brightness(1.2);height:18px;" onerror="this.style.display='none'"><span>LightReach</span></div>
+                <div class="mat-select-item" data-val="local"><span>Local Financer</span></div>
+                <div class="mat-select-item" data-val="goodleap" id="fc-goodleap"><img class="item-logo" src="https://crm.solentrex.com/assets/image/company-logos/goodleap.png" alt="GoodLeap" onerror="this.style.display='none'"><span>Goodleap - TPO</span></div>
+              </div>
+            </div>
+            <!-- Finance Option dropdown -->
+            <div class="mat-select-wrap" id="fo-wrap">
+              <div class="mat-select-outline" id="fo-outline">
+                <span class="mat-select-label">Finance Option *</span>
+                <div class="mat-select-value placeholder" id="fo-value">Select a finance option</div>
+              </div>
+              <div class="mat-select-menu" id="fo-menu">
+                <div class="mat-select-item" data-val="opt1">
+                  <div><div style="font-weight:600;">25 years &middot; 1.99% escalator &middot; Lease &middot; Solar + Backup Battery</div><div class="item-sub">Type: Solar Leases / PPAs | Rate: 1.99% | Term: 25 years | DF: 0.00%</div></div>
+                </div>
+                <div class="mat-select-item" data-val="opt2">
+                  <div><div style="font-weight:600;">20 years &middot; 0% escalator &middot; Lease &middot; Solar Only</div><div class="item-sub">Type: Solar Leases / PPAs | Rate: 0% | Term: 20 years | DF: 0.00%</div></div>
+                </div>
+                <div class="mat-select-item" data-val="opt3">
+                  <div><div style="font-weight:600;">25 years &middot; 2.99% escalator &middot; PPA &middot; Solar + Backup Battery</div><div class="item-sub">Type: Solar PPAs | Rate: 2.99% | Term: 25 years | DF: 0.00%</div></div>
+                </div>
+                <div class="mat-select-item" data-val="opt4">
+                  <div><div style="font-weight:600;">10 years &middot; 0% &middot; Loan &middot; Solar Only</div><div class="item-sub">Type: Solar Loan | Rate: 0% | Term: 10 years | DF: 30.00%</div></div>
+                </div>
+                <div class="mat-select-item" data-val="opt5">
+                  <div><div style="font-weight:600;">15 years &middot; 1.49% escalator &middot; Lease &middot; Solar Only</div><div class="item-sub">Type: Solar Leases / PPAs | Rate: 1.49% | Term: 15 years | DF: 0.00%</div></div>
+                </div>
+              </div>
+            </div>
+            <!-- Pricing summary dropdown -->
+            <div class="mat-select-wrap" id="fp-wrap">
+              <div class="mat-select-outline" id="fp-outline">
+                <span class="mat-select-label">Base PPW | Production Rate | Monthly Payment | Gross PPW</span>
+                <div class="mat-select-value placeholder" id="fp-value">Pricing auto-fills after selecting option</div>
+              </div>
+              <div class="mat-select-menu" id="fp-menu"></div>
+            </div>
+            <!-- Finance details table -->
+            <div class="c-box">
+              <div class="c-box-body" style="padding:0;">
+                <ul class="spec-list" id="finance-specs" style="margin:0;"></ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-side">
+            <div class="c-box" style="margin-bottom:14px;">
+              <div class="c-box-body" style="text-align:center;padding:20px;">
+                <div id="fi-badge" style="font-size:24px;font-weight:700;color:#0258a8;">&mdash;</div>
+              </div>
+            </div>
+            <div style="margin-top:14px;">
+              <div class="btn-crm btn-primary" style="width:100%;justify-content:center;">Save &amp; Continue</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Proposal -->
+      <div class="crm-panel" id="step-2">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="font-size:11px;color:#72767a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Proposal for</div>
+          <div style="font-size:18px;font-weight:700;" id="proposal-name"></div>
+          <div style="font-size:13px;color:#72767a;" id="proposal-address"></div>
+        </div>
+        <div class="finance-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-bottom:20px;">
+          <div class="finance-card"><div class="val" id="p-consumption">&mdash;</div><div class="lbl">Annual Consumption</div></div>
+          <div class="finance-card"><div class="val" id="p-system">&mdash;</div><div class="lbl">System Size</div></div>
+          <div class="finance-card"><div class="val" id="p-offset" style="color:#28c840;">&mdash;</div><div class="lbl">Energy Offset</div></div>
+          <div class="finance-card"><div class="val" id="p-savings" style="color:#f57f06;">&mdash;</div><div class="lbl">Est. Annual Savings</div></div>
+        </div>
+        <div class="two-col">
+          <div class="col-main">
+            <div class="c-box"><div class="c-box-head"><div class="c-box-title" data-tip="Before vs after solar — based on actual utility rate and system production">Monthly Cost Comparison</div></div><div class="c-box-body">
+              <div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Before Solar</span><span id="cost-before">&mdash;</span></div><div style="background:#eaeef0;border-radius:4px;height:24px;overflow:hidden;"><div id="bar-before" style="height:100%;background:#dc2626;border-radius:4px;width:0;transition:width 1s ease;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>After Solar</span><span id="cost-after">&mdash;</span></div><div style="background:#eaeef0;border-radius:4px;height:24px;overflow:hidden;"><div id="bar-after" style="height:100%;background:#28c840;border-radius:4px;width:0;transition:width 1s ease;"></div></div></div>
+            </div></div>
+            <!-- Battery Configuration -->
+            <div class="c-box" id="battery-box" style="display:none;">
+              <div class="c-box-head"><div class="c-box-title">Battery Configuration</div></div>
+              <div class="c-box-body">
+                <div class="battery-config">
+                  <div class="battery-header">
+                    <div class="battery-name" id="bat-name">Tesla Powerwall 3</div>
+                    <div class="battery-qty">Qty: <strong id="bat-qty-display">1</strong></div>
+                  </div>
+                  <div class="battery-stat"><span class="lbl">Total Capacity</span><span class="val" id="bat-capacity">13.50 kWh</span></div>
+                  <div class="battery-stat"><span class="lbl">Battery Mode</span><span class="val" id="bat-mode-display">Energy Shift</span></div>
+                  <div class="slider-wrap" id="bat-slider-preview">
+                    <div class="slider-labels"><span>Energy Shift</span><span>Backup</span></div>
+                    <div class="slider-track">
+                      <div class="slider-fill" id="bat-slider-fill" style="width:90%;"></div>
+                      <div class="slider-thumb" id="bat-slider-thumb" style="left:90%;"></div>
+                    </div>
+                    <div class="slider-values">
+                      <div class="slider-val"><strong id="bat-es-pct">90%</strong>Energy Shift<br><span id="bat-es-kwh">10.35 kWh</span></div>
+                      <div class="slider-val"><strong id="bat-bu-pct">10%</strong>Backup<br><span id="bat-bu-kwh">1.15 kWh</span></div>
+                    </div>
+                  </div>
+                  <div style="margin-top:12px;">
+                    <div class="btn-crm btn-primary" id="edit-battery-btn" style="justify-content:center;width:100%;">Edit Battery</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-side">
+            <div class="c-box"><div class="c-box-head"><div class="c-box-title" data-tip="Final system specifications carried forward from the design step">System Details</div></div><div class="c-box-body" style="padding:0 14px;"><ul class="spec-list" id="proposal-specs"></ul></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: E-Sign -->
+      <div class="crm-panel" id="step-4">
+        <div class="esign-split">
+          <div class="esign-doc">
+            <div style="position:absolute;top:12px;right:12px;font-size:11px;color:#72767a;background:#f6f8f9;padding:3px 8px;border-radius:4px;" id="page-num">Page 1 / 7</div>
+            <div class="doc-page" style="font-size:11px;line-height:1.6;color:#444;position:relative;">
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:48px;font-weight:800;color:rgba(220,38,38,.06);white-space:nowrap;pointer-events:none;z-index:0;">SAMPLE</div>
+              <div style="position:relative;z-index:1;">
+                <div style="text-align:center;margin-bottom:4px;"><span style="background:#dc2626;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase;letter-spacing:.5px;">Sample Agreement &mdash; For Demonstration Only</span></div>
+                <div style="text-align:center;font-weight:700;font-size:13px;margin-bottom:4px;color:#212121;">RESIDENTIAL SOLAR INSTALLATION AGREEMENT</div>
+                <div style="font-size:10px;color:#72767a;text-align:center;margin-bottom:10px;">Agreement No. SLX-0000-DEMO</div>
+                <p style="margin-bottom:6px;">This Sample Agreement ("Agreement") is entered into between <strong id="doc-owner">___________</strong> ("Homeowner") and <strong>Solentrex Energy Solutions</strong> ("Installer"), effective as of the date signed below. <em style="color:#999;">This is a sample document for demonstration purposes.</em></p>
+                <p style="margin-bottom:6px;"><strong>1. System.</strong> Installer shall install a <strong id="doc-system">___</strong> solar PV system consisting of <strong id="doc-panels">___</strong> panels (<span id="doc-panel-model">___</span>) with <span id="doc-inverter">___</span> inverter at <strong id="doc-address">___________</strong>.</p>
+                <p style="margin-bottom:6px;"><strong>2. Finance.</strong> Financed through <span id="doc-finance">___</span> &mdash; 25-year Solar Lease, 1.99% escalator, <span id="doc-monthly">___</span> monthly.</p>
+                <p style="margin-bottom:6px;"><strong>3. Production.</strong> Est. <span id="doc-production">___</span>/yr, offsetting ~<span id="doc-offset">___</span> of consumption.</p>
+                <p style="margin-bottom:10px;"><strong>4. Warranty.</strong> 25-year manufacturer warranty. 10-year workmanship warranty.</p>
+                <div style="font-size:10px;color:#72767a;margin-bottom:8px;font-weight:500;" id="sig-party-label">Sales Associate Signature</div>
+                <div class="sig-field" id="sig-1"><span class="sig-badge">Signature</span><span style="padding-left:8px;font-size:12px;color:#72767a;">Click here to Sign</span></div>
+                <div style="height:4px;"></div>
+                <div class="sig-field" id="sig-2"><span class="sig-badge">Initials</span><span style="padding-left:8px;font-size:12px;color:#72767a;">Enter initials</span></div>
+                <div style="height:4px;"></div>
+                <div class="sig-field" id="sig-3"><span class="sig-badge">Date</span><span style="padding-left:8px;font-size:12px;color:#72767a;" id="sig-date"></span></div>
+              </div>
+            </div>
+          </div>
+          <div class="esign-signers">
+            <div style="font-size:14px;font-weight:700;margin-bottom:12px;" data-tip="Solentrex's proprietary e-signature platform — no DocuSign or third-party fees">Sign</div>
+            <div class="signer" id="signer-0"><div class="signer-avatar" id="signer-avatar-0">&mdash;</div><div><div class="signer-role">Sales Associate</div><div class="signer-name" id="signer-name-0">&mdash;</div></div><div class="signer-status pending" id="signer-status-0">Pending</div></div>
+            <div class="signer" id="signer-1"><div class="signer-avatar" id="signer-avatar-1">&mdash;</div><div><div class="signer-role">Home Owner</div><div class="signer-name" id="signer-name-1">&mdash;</div></div><div class="signer-status pending" id="signer-status-1">Pending</div></div>
+            <div style="margin-top:auto;padding-top:16px;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="signer-avatar" style="width:28px;height:28px;font-size:9px;" id="foot-avatar-0">&mdash;</div>
+                <div class="signer-avatar" style="width:28px;height:28px;font-size:9px;" id="foot-avatar-1">&mdash;</div>
+                <span style="font-size:12px;color:#72767a;" id="sign-count">0/2</span>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div class="btn-crm btn-primary">Save</div>
+                <div class="btn-crm btn-orange" id="next-person-btn" style="opacity:.5;">Next Person</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="crm-footer" id="crm-footer">
+      <div class="btn-crm btn-grey">Cancel</div>
+      <div style="display:flex;gap:8px;">
+        <div class="btn-crm btn-grey">Save &amp; Close</div>
+        <div class="btn-crm btn-primary" id="footer-next">Save &amp; Continue</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Annotation -->
+<div class="annotation" id="ann">
+  <div class="ann-label" id="ann-label"></div>
+  <div id="ann-text"></div>
+</div>
+
+<!-- Fake cursor -->
+<div class="fake-cursor" id="fake-cursor">
+  <svg viewBox="0 0 24 24"><path d="M5 3l14 8-6.5 2L9 19.5z" fill="#fff" stroke="#333" stroke-width="1.5"/></svg>
+</div>
+<div class="cursor-ring" id="cursor-ring"></div>
+<div class="cursor-tip" id="cursor-tip"></div>
+
+<!-- Battery Edit Panel -->
+<div class="battery-panel-backdrop" id="bp-backdrop"></div>
+<div class="battery-panel" id="battery-panel">
+  <div class="bp-header">
+    <h3>Edit Battery</h3>
+    <button class="bp-close" id="bp-close">&times;</button>
+  </div>
+  <div class="bp-body">
+    <div class="bp-section">
+      <div class="bp-section-title">Battery</div>
+      <div class="bp-field">
+        <div class="bp-field-label">Battery Model</div>
+        <div class="bp-select-disabled">Powerwall 3</div>
+      </div>
+      <div class="bp-field">
+        <div class="bp-field-label">Battery Quantity</div>
+        <div class="bp-qty-row">
+          <button class="bp-qty-btn" id="bp-qty-minus">&minus;</button>
+          <input class="bp-qty-input" id="bp-qty" value="1" readonly>
+          <button class="bp-qty-btn" id="bp-qty-plus">+</button>
+          <span class="bp-capacity">Total: <strong id="bp-total-cap">13.50 kWh</strong></span>
+        </div>
+      </div>
+    </div>
+    <div class="bp-section">
+      <div class="bp-section-title">Battery Mode</div>
+      <div class="battery-mode-row">
+        <div class="battery-radio" id="bp-mode-backup"><div class="radio-dot"></div> Backup</div>
+        <div class="battery-radio active" id="bp-mode-es"><div class="radio-dot"></div> Energy Shift</div>
+      </div>
+    </div>
+    <div class="bp-section">
+      <div class="bp-section-title">Energy Allocation</div>
+      <div class="slider-wrap">
+        <div class="slider-labels"><span>Energy Shift</span><span>Backup</span></div>
+        <div class="slider-track" id="bp-slider-track">
+          <div class="slider-fill" id="bp-slider-fill" style="width:90%;"></div>
+          <div class="slider-thumb" id="bp-slider-thumb" style="left:90%;"></div>
+        </div>
+        <div class="slider-values">
+          <div class="slider-val"><strong id="bp-es-pct">90%</strong>Energy Shift<br><span id="bp-es-kwh">10.35 kWh</span></div>
+          <div class="slider-val"><strong id="bp-bu-pct">10%</strong>Backup<br><span id="bp-bu-kwh">1.15 kWh</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="bp-section">
+      <div class="bp-section-title">Daily Energy Profile</div>
+      <p style="font-size:10px;color:#6b7280;margin-bottom:8px;">See how your battery shifts solar to evening. <span style="color:#ef4444;font-weight:600;">Red</span> = energy from the grid.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;font-size:10px;color:#4b5563;font-weight:500;">
+        <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></span>Demand</span>
+        <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></span>Solar</span>
+        <span style="display:flex;align-items:center;gap:3px;" id="dcLegBatt"><span style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></span>Solar+Battery</span>
+        <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:3px;background:rgba(239,68,68,.3);border:1px solid rgba(239,68,68,.5);border-radius:1px;"></span>Grid</span>
+      </div>
+      <div style="position:relative;height:200px;">
+        <canvas id="dcChart"></canvas>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <div style="flex:1;background:#f9fafb;border-radius:6px;padding:8px 4px;text-align:center;">
+          <div style="font-size:15px;font-weight:700;color:#ef4444;" id="dcStatGrid">--</div>
+          <div style="font-size:8px;color:#7c828a;font-weight:600;text-transform:uppercase;">kWh From Grid</div>
+        </div>
+        <div style="flex:1;background:#f9fafb;border-radius:6px;padding:8px 4px;text-align:center;">
+          <div style="font-size:15px;font-weight:700;color:#22c55e;" id="dcStatSelf">--</div>
+          <div style="font-size:8px;color:#7c828a;font-weight:600;text-transform:uppercase;">Self-Powered</div>
+        </div>
+        <div style="flex:1;background:#f9fafb;border-radius:6px;padding:8px 4px;text-align:center;">
+          <div style="font-size:15px;font-weight:700;color:#19191c;" id="dcStatBill">--</div>
+          <div style="font-size:8px;color:#7c828a;font-weight:600;text-transform:uppercase;">Est. Utility Bill</div>
+        </div>
+      </div>
+    </div>
+    <div class="bp-section">
+      <div class="bp-section-title">Load Prioritization</div>
+      <div class="load-header">
+        <div class="load-total">Total Loads: <strong id="bp-load-total">0.00 kW</strong> / <span id="bp-load-max">1.15 kW</span></div>
+      </div>
+      <div id="bp-loads">
+        <div class="load-item disabled-load" data-kw="1.20"><div class="load-cb disabled"></div><div class="load-name">Microwave</div><div class="load-kw">1.20 kW</div></div>
+        <div class="load-item" data-kw="1.00"><div class="load-cb" id="load-lighting"></div><div class="load-name">Lighting</div><div class="load-kw">1.00 kW</div></div>
+        <div class="load-item" data-kw="0.75"><div class="load-cb" id="load-garage"></div><div class="load-name">Garage Door</div><div class="load-kw">0.75 kW</div></div>
+        <div class="load-item" data-kw="0.75"><div class="load-cb" id="load-fridge"></div><div class="load-name">Refrigerator</div><div class="load-kw">0.75 kW</div></div>
+        <div class="load-item" data-kw="0.15"><div class="load-cb" id="load-laptop"></div><div class="load-name">Laptop(s)</div><div class="load-kw">0.15 kW</div></div>
+        <div class="load-item" data-kw="0.15"><div class="load-cb" id="load-tv"></div><div class="load-name">TV(s) &amp; Cable</div><div class="load-kw">0.15 kW</div></div>
+        <div class="load-item" data-kw="0.05"><div class="load-cb" id="load-coffee"></div><div class="load-name">Coffee Maker</div><div class="load-kw">0.05 kW</div></div>
+      </div>
+    </div>
+    <button class="bp-save" id="bp-save">Save</button>
+  </div>
+</div>
+
+<script>
+const D = {
+  address: '123 Sunnyvale Dr, Phoenix, AZ 85001',
+  clients: [{first:'Jane',last:'Doe'},{first:'John',last:'Doe'}],
+  ci: 0,
+  email: 'jane.doe@email.com',
+  phone: '(555) 555-5555',
+  utility: 'Arizona Public Service Co',
+  tariff: 'Residential - Fixed Energy Charge Plan, Medium Tier',
+  system: '6.8 kW', panels: '20', maxPanels: '106',
+  panelModel: 'Q.PEAK DUO BLK-G6+ 340', inverter: 'Powerwall 3 (integrated inverter)',
+  offset: '122.28%', consumption: '10,000 kWh', production: '12,228 kWh',
+  systemLoss: '10.97%', shadingLoss: '1.46%', co2: '428.9 Kg/MWh',
+  roofArea: '257.7 m\u00B2', sunshine: '1,967 hr', acPower: '11,500 W', dcAcRatio: '0.59',
+  costBefore: '$185/mo', costAfter: '$32/mo', savings: '$1,840/yr',
+  financeCompany: 'GoodLeap \u2014 TPO',
+  financeOption: '25 years \u00B7 1.99% escalator \u00B7 Lease \u00B7 Solar + Backup Battery',
+  financeDetails: 'Type: Solar Leases / PPAs | Rate: 1.99% | Term: 25 years',
+  ppw: '$2.43', costKwh: '$0.134', monthly: '$159.53', rate: '1.99%',
+  grossPrice: '$23,540.00', purchasePrice: '$23,772.59', salesRep: 'Rex Sunfield',
+  battery: 'Tesla Powerwall 3', batteryQty: 1, batteryCapacity: '13.50 kWh',
+  energyShiftPct: 90, backupPct: 10, energyShiftKwh: '10.35 kWh', backupKwh: '1.15 kWh'
+};
+
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+let currentStep = 0, microStep = 0;
+
+// --- Fast-forward mode: skip waits during seeking ---
+let seeking = false;
+
+// Track ALL pending timers so seekToStep can kill them all
+let pendingTimers = [];
+function trackedTimeout(fn, ms) {
+  const id = setTimeout(() => { pendingTimers = pendingTimers.filter(t => t !== id); fn(); }, ms);
+  pendingTimers.push(id);
+  return id;
+}
+function clearAllTimers() {
+  pendingTimers.forEach(id => clearTimeout(id));
+  pendingTimers = [];
+}
+
+// Abort token: increments on seek, checked by running animations
+let abortToken = 0;
+
+function wait(ms) {
+  if (seeking) return Promise.resolve();
+  const token = abortToken;
+  return new Promise(r => { trackedTimeout(() => r(), ms); });
+}
+function flash(el) {
+  if (seeking) return;
+  el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 600);
+}
+
+function typeText(el, text, speed=40) {
+  if (seeking) { el.innerHTML = text; el.classList.remove('typing'); return Promise.resolve(); }
+  const token = abortToken;
+  return new Promise(resolve => {
+    el.innerHTML = ''; el.classList.add('typing');
+    let i = 0;
+    (function next() {
+      if (abortToken !== token) { el.innerHTML = text; el.classList.remove('typing'); resolve(); return; }
+      if (i < text.length) { el.innerHTML = text.slice(0,i+1)+'<span class="cursor"></span>'; i++; trackedTimeout(next, speed); }
+      else { el.innerHTML = text; el.classList.remove('typing'); resolve(); }
+    })();
+  });
+}
+
+// Annotation system — shows near the CRM window, doesn't block
+let annTimer = null;
+function showPopup(label, text) {
+  if (seeking) return;
+  $('ann-label').textContent = label;
+  $('ann-text').textContent = text;
+  const ann = $('ann');
+  const win = document.querySelector('.crm-window');
+  if (win) {
+    const r = win.getBoundingClientRect();
+    ann.style.bottom = (window.innerHeight - r.bottom + 8) + 'px';
+    ann.style.right = '20px';
+    ann.style.left = 'auto';
+    ann.style.top = 'auto';
+  }
+  ann.classList.add('visible');
+  clearTimeout(annTimer);
+  annTimer = setTimeout(() => ann.classList.remove('visible'), 4000);
+}
+function hidePopup() { $('ann').classList.remove('visible'); clearTimeout(annTimer); }
+
+function goToStep(step) {
+  currentStep = step; microStep = 0;
+  $$('.crm-panel').forEach(p => p.classList.remove('active'));
+  $('step-'+step).classList.add('active');
+  $$('.crm-step').forEach((s,i) => { s.classList.toggle('active',i===step); s.classList.toggle('completed',i<step); });
+  $('crm-footer').style.visibility = step===4?'hidden':'visible';
+}
+
+// ==========================================
+// CROSSFADE design images (no flashing)
+// Two img tags alternate: A and B
+// ==========================================
+let designShowingA = true;
+function swapDesignImg(src) {
+  if (seeking) {
+    // Instant swap
+    const a = $('design-img-a'), b = $('design-img-b');
+    a.src = src; a.style.opacity = '1';
+    b.style.opacity = '0';
+    designShowingA = true;
+    return Promise.resolve();
+  }
+  return new Promise(resolve => {
+    const a = $('design-img-a'), b = $('design-img-b');
+    if (designShowingA) {
+      b.src = src;
+      // Wait for image to load before crossfading
+      const doFade = () => { b.style.opacity = '1'; a.style.opacity = '0'; designShowingA = false; setTimeout(resolve, 420); };
+      if (b.complete) doFade(); else b.onload = doFade;
+    } else {
+      a.src = src;
+      const doFade = () => { a.style.opacity = '1'; b.style.opacity = '0'; designShowingA = true; setTimeout(resolve, 420); };
+      if (a.complete) doFade(); else a.onload = doFade;
+    }
+  });
+}
+
+// Helper: update specific spec values by label
+function updateSpecs(listId, changes) {
+  const items = $(listId).querySelectorAll('li');
+  items.forEach(li => {
+    const lbl = li.querySelector('.lbl');
+    const val = li.querySelector('.val');
+    if (lbl && val && changes[lbl.textContent]) {
+      val.textContent = changes[lbl.textContent];
+      flash(li);
+    }
+  });
+}
+
+// ==========================================
+// MICRO-STEP SEQUENCES
+// ==========================================
+
+const sequences = {
+  // STEP 0: Create Project
+  0: [
+    // 0.0 — Intro
+    async () => {
+      showPopup('Create Project', 'Enter an address — APIs fire automatically for title check, utility, and satellite imagery.');
+    },
+    // 0.1 — Type address → APIs fire (utility, tariff, satellite)
+    async () => {
+      hidePopup();
+      await moveCursorTo($('address-input'), 'Typing address...');
+      await cursorClick();
+      await typeText($('address-input'), D.address, 35);
+      hideCursor();
+      $('side-address').textContent = D.address;
+      $('side-address').style.color = '#212121';
+      $('side-address').style.fontWeight = '500';
+      flash($('side-address'));
+      await wait(300);
+      $('utility').innerHTML = D.utility;
+      flash($('utility'));
+      await wait(300);
+      $('tariff').innerHTML = D.tariff;
+      flash($('tariff'));
+      await wait(300);
+      $('map-banner').style.display = 'none';
+      $('map-area').style.display = '';
+      $('map-tabs').style.display = '';
+      flash($('map-area'));
+      showPopup('Address Entered', 'Multiple APIs fired — utility provider, tariff, satellite imagery, and a title check all ran in parallel from the address.');
+    },
+    // 0.2 — Select project type
+    async () => {
+      hidePopup();
+      await moveCursorTo($('tile-solar'), 'Select Solar PV');
+      await cursorClick();
+      $('tile-solar').classList.add('active');
+      flash($('tile-solar'));
+      showPopup('Project Type', 'Solar PV selected. This determines system configuration and available finance products.');
+    },
+    // 0.3 — Select existing solar (No)
+    async () => {
+      hidePopup();
+      await moveCursorTo($('radio-no'), 'No existing solar');
+      await cursorClick();
+      flash($('radio-no').closest('.solar-radio'));
+      showPopup('Existing Solar', 'This customer does not have existing solar panels. This affects tariff calculation.');
+    },
+    // 0.4 — Title check → client dropdown
+    async () => {
+      hidePopup();
+      await moveCursorTo($('client-select'), 'Opening client list');
+      await cursorClick();
+      $('client-select').innerHTML = '<span style="color:#72767a;">Title check results loading...</span>';
+      await wait(500);
+      $('client-select').innerHTML = '<span style="color:#72767a;">2 owners found — select client &#9660;</span>';
+      $('client-dropdown').classList.add('open');
+      showPopup('Title Check Results', 'The title check found 2 property owners at this address. Selecting one auto-fills the client name below.');
+    },
+    // 0.5 — Select client → fill first/last name
+    async () => {
+      hidePopup();
+      const firstItem = $$('.f-dropdown-item')[0];
+      await moveCursorTo(firstItem, 'Select Jane Doe');
+      await cursorClick();
+      firstItem.classList.add('selecting');
+      await wait(400);
+      const c = D.clients[D.ci];
+      $('client-select').innerHTML = '<strong>'+c.first+' '+c.last+'</strong> <span style="color:#72767a;">| '+D.address+'</span>';
+      $('client-dropdown').classList.remove('open');
+      firstItem.classList.remove('selecting');
+      flash($('client-select'));
+      await wait(200);
+      $('fname').textContent = c.first; flash($('fname'));
+      await wait(150);
+      $('lname').textContent = c.last; flash($('lname'));
+      hideCursor();
+      showPopup('Client Selected', 'First and last name auto-filled from the title check.');
+    },
+    // 0.6 — Type email & phone
+    async () => {
+      hidePopup();
+      await moveCursorTo($('email'), 'Entering email');
+      await cursorClick();
+      await typeText($('email'), D.email, 30);
+      await wait(200);
+      await moveCursorTo($('phone'), 'Entering phone');
+      await cursorClick();
+      await typeText($('phone'), D.phone, 30);
+      hideCursor();
+      showPopup('Contact Details', 'Email and phone entered manually. Client details are complete.');
+    },
+    // 0.7 — AI reads utility bill (energy usage — last)
+    async () => {
+      hidePopup();
+      await moveCursorTo($('upload-area'), 'Upload utility bill');
+      await cursorClick();
+      $('upload-area').style.display = 'none';
+      $('bill-upload').style.display = 'flex';
+      $('bill-upload').className = 'auto-indicator loading';
+      $('bill-upload').innerHTML = '<div class="spinner"></div><span>AI reading utility bill...</span>';
+      hideCursor();
+      await wait(1500);
+      $('bill-upload').className = 'auto-indicator done';
+      $('bill-upload').innerHTML = '&#10003; AI extracted 12 months of usage data — 10,000 kWh annual consumption';
+      flash($('bill-upload'));
+      showPopup('AI Bill Reading', 'The AI reads the utility bill automatically, extracting monthly usage data with 100% accuracy. No manual entry required.');
+    },
+    // 0.8 — Ready to continue
+    async () => {
+      hidePopup();
+      await moveCursorTo($('footer-next'), 'Save & Continue');
+      await cursorClick();
+      hideCursor();
+      showPopup('Ready to Design', 'All project details are set. Moving to the auto designer.');
+    }
+  ],
+
+  // STEP 1: Design
+  1: [
+    // 1.0 — Enter designer with satellite image
+    async () => {
+      hidePopup(); goToStep(1);
+      resetToolBtns();
+      $('design-address').textContent = '\uD83D\uDCCD '+D.address;
+      $('design-img-a').src = 'img/demo-satellite.png'; $('design-img-a').style.opacity = '1';
+      $('design-img-b').src = ''; $('design-img-b').style.opacity = '0';
+      designShowingA = true;
+      showPopup('Step 2: Auto Designer', 'The satellite image loads into the design canvas. Running the auto designer next.');
+    },
+    // 1.1 — Run auto designer
+    async () => {
+      hidePopup();
+      if (!seeking) {
+        const active = designShowingA ? $('design-img-a') : $('design-img-b');
+        active.style.opacity = '.4';
+      }
+      showPopup('Running Auto Designer', 'Analyzing roof segments, shading, and orientation...');
+      await wait(1500);
+      await swapDesignImg('img/design-auto.png');
+      const specs = [['System Size','7.14 kW'],['Panel','Q.PEAK DUO BLK-G6+ 340'],['Panels Placed','21 panels'],['Max Panels','106 panels'],['Annual Consumption','10,000 kWh'],['Solar Production','12,836.6 kWh'],['System Loss','10.97%'],['Shading Loss','1.46%']];
+      $('building-specs').innerHTML = '';
+      for (const [l,v] of specs) { const li=document.createElement('li'); li.innerHTML='<span class="lbl">'+l+'</span><span class="val">'+v+'</span>'; $('building-specs').appendChild(li); flash(li); await wait(100); }
+      const inv = [['Inverter','Powerwall 3 (integrated inverter)'],['Rated A/C Power','11,500 W'],['DC/AC Ratio','0.62'],['Within DC Power Limit','Yes'],['Balanced Design','No'],['Clipping','No']];
+      $('inverter-specs').innerHTML = '';
+      for (const [l,v] of inv) { const li=document.createElement('li'); li.innerHTML='<span class="lbl">'+l+'</span><span class="val">'+v+'</span>'; $('inverter-specs').appendChild(li); await wait(60); }
+      if (!seeking) {
+        let off=0; const iv=setInterval(()=>{off+=4;if(off>=128.37){off=128.37;clearInterval(iv);}$('offset-val').textContent=off.toFixed(2)+'%';},20);
+        await wait(1000);
+      } else { $('offset-val').textContent = '128.37%'; }
+      hidePopup();
+      showPopup('Auto Designer Complete', '21 panels placed — 128.37% offset. Per-panel production and shading calculated individually.');
+    },
+    // 1.2 — Toggle segmentation lines ON
+    async () => {
+      hidePopup();
+      await moveCursorTo($('tb-seg'), 'Toggle segmentation');
+      await cursorClick();
+      setToolBtn('tb-seg', true);
+      await swapDesignImg('img/design-seg.png');
+      hideCursor();
+      showPopup('Segmentation Lines', 'Roof segments are identified automatically. Each segment\'s tilt, azimuth, and area are calculated independently.');
+    },
+    // 1.3 — Toggle tree coverage ON
+    async () => {
+      hidePopup();
+      await moveCursorTo($('tb-tree'), 'Toggle tree obstruction');
+      await cursorClick();
+      setToolBtn('tb-tree', true);
+      await swapDesignImg('img/design-seg-trees.png');
+      hideCursor();
+      showPopup('Tree Coverage', 'Tree obstructions are detected and their shading impact is calculated on a per-panel basis.');
+    },
+    // 1.4 — Disable 1 panel (21→20)
+    async () => {
+      hidePopup();
+      setToolBtn('tb-seg', false); setToolBtn('tb-tree', false);
+      await moveCursorToCanvas(panelClicks.dis1.x, panelClicks.dis1.y, 'Disable panel');
+      await cursorClick();
+      await swapDesignImg('img/design-dis1.png');
+      updateSpecs('building-specs',{'System Size':'6.8 kW','Panels Placed':'20 panels','Solar Production':'12,226.6 kWh'});
+      $('offset-val').textContent = '122.27%';
+      updateSpecs('inverter-specs',{'DC/AC Ratio':'0.59'});
+      hideCursor();
+      showPopup('Panel Disabled', 'Removed 1 panel — offset drops to 122.27%. Numbers update automatically with each change.');
+    },
+    // 1.5 — Disable 2nd panel (20→19)
+    async () => {
+      hidePopup();
+      await moveCursorToCanvas(panelClicks.dis2.x, panelClicks.dis2.y, 'Disable panel');
+      await cursorClick();
+      await swapDesignImg('img/design-dis2.png');
+      updateSpecs('building-specs',{'System Size':'6.46 kW','Panels Placed':'19 panels','Solar Production':'11,616.6 kWh'});
+      $('offset-val').textContent = '116.17%';
+      updateSpecs('inverter-specs',{'DC/AC Ratio':'0.56'});
+      hideCursor();
+      showPopup('Panel Disabled', 'Removed another panel — 19 panels, 116.17% offset. Production recalculates instantly.');
+    },
+    // 1.6 — Disable 3rd panel (19→18)
+    async () => {
+      hidePopup();
+      await moveCursorToCanvas(panelClicks.dis3.x, panelClicks.dis3.y, 'Disable panel');
+      await cursorClick();
+      await swapDesignImg('img/design-dis3.png');
+      updateSpecs('building-specs',{'System Size':'6.12 kW','Panels Placed':'18 panels','Solar Production':'11,006.6 kWh'});
+      $('offset-val').textContent = '110.07%';
+      updateSpecs('inverter-specs',{'DC/AC Ratio':'0.53'});
+      hideCursor();
+      showPopup('Panel Disabled', 'Removed a third panel — 18 panels, 110.07% offset.');
+    },
+    // 1.7 — Enable 1 panel in different location
+    async () => {
+      hidePopup();
+      await moveCursorToCanvas(panelClicks.en1.x, panelClicks.en1.y, 'Enable panel');
+      await cursorClick();
+      await swapDesignImg('img/design-en1.png');
+      updateSpecs('building-specs',{'System Size':'6.46 kW','Panels Placed':'19 panels','Solar Production':'11,616.6 kWh'});
+      $('offset-val').textContent = '116.17%';
+      updateSpecs('inverter-specs',{'DC/AC Ratio':'0.56'});
+      hideCursor();
+      showPopup('Panel Added', 'Added a panel in a different location. Production varies by placement due to per-panel shading analysis.');
+    },
+    // 1.8 — Enable 2nd panel
+    async () => {
+      hidePopup();
+      await moveCursorToCanvas(panelClicks.en2.x, panelClicks.en2.y, 'Enable panel');
+      await cursorClick();
+      await swapDesignImg('img/design-en2.png');
+      updateSpecs('building-specs',{'System Size':'6.8 kW','Panels Placed':'20 panels','Solar Production':'12,228.2 kWh'});
+      $('offset-val').textContent = '122.28%';
+      updateSpecs('inverter-specs',{'DC/AC Ratio':'0.59'});
+      hideCursor();
+      showPopup('Panel Added', '20 panels — 122.28% offset. Notice production differs from before due to different panel placement.');
+    },
+    // 1.9 — Toggle irradiance ON
+    async () => {
+      hidePopup();
+      await moveCursorTo($('tb-irr'), 'Toggle irradiance view');
+      await cursorClick();
+      setToolBtn('tb-irr', true);
+      await swapDesignImg('img/design-irr.png');
+      hideCursor();
+      showPopup('Irradiance View', 'Per-panel irradiance heatmap. Each panel\'s annual solar exposure is calculated individually — not segment-averaged.');
+    },
+    // 1.10 — Toggle irradiance OFF, save design
+    async () => {
+      hidePopup();
+      await moveCursorTo($('tb-irr'), 'Toggle irradiance off');
+      await cursorClick();
+      setToolBtn('tb-irr', false);
+      await swapDesignImg('img/design-en2.png');
+      await moveCursorTo($('save-design-btn'), 'Save design');
+      await cursorClick();
+      hideCursor();
+      showPopup('Design Saved', 'Final design: 20 panels, 6.8 kW, 122.28% offset. Moving to proposal.');
+    }
+  ],
+
+  // STEP 2: Proposal
+  2: [
+    // 2.0 — Enter proposal page, populate KPIs + cost bars + specs
+    async () => {
+      hidePopup(); goToStep(2);
+      $('battery-box').style.display = 'none';
+      const c=D.clients[D.ci];
+      $('proposal-name').textContent=c.first+' '+c.last;
+      $('proposal-address').textContent=D.address;
+      showPopup('Step 3: Proposal', 'A complete proposal is generated in under 60 seconds with -1.1% production variance.');
+    },
+    // 2.1 — Populate KPI cards and system details
+    async () => {
+      hidePopup();
+      await moveCursorTo($('p-consumption').parentElement);
+      $('p-consumption').textContent=D.consumption; flash($('p-consumption').parentElement); await wait(250);
+      await moveCursorTo($('p-system').parentElement);
+      $('p-system').textContent=D.system; flash($('p-system').parentElement); await wait(250);
+      await moveCursorTo($('p-offset').parentElement);
+      $('p-offset').textContent=D.offset; flash($('p-offset').parentElement); await wait(250);
+      await moveCursorTo($('p-savings').parentElement);
+      $('p-savings').textContent=D.savings; flash($('p-savings').parentElement); await wait(300);
+      hideCursor();
+      $('cost-before').textContent=D.costBefore; $('cost-after').textContent=D.costAfter;
+      $('bar-before').style.width='100%'; await wait(300); $('bar-after').style.width='17%';
+      const ps=[['System Size',D.system],['Panels',D.panels],['Panel Model',D.panelModel],['Inverter',D.inverter],['Production',D.production],['Offset',D.offset]];
+      $('proposal-specs').innerHTML='';
+      for (const [l,v] of ps) { const li=document.createElement('li'); li.innerHTML='<span class="lbl">'+l+'</span><span class="val">'+v+'</span>'; $('proposal-specs').appendChild(li); await wait(80); }
+      // Show battery section
+      $('battery-box').style.display = '';
+      flash($('battery-box'));
+      showPopup('Battery Included', 'A Tesla Powerwall 3 is included in this proposal. Click Edit Battery to configure energy shift and backup allocation.');
+    },
+    // 2.2 — Open battery panel, interact with controls
+    async () => {
+      hidePopup();
+      await moveCursorTo($('edit-battery-btn'), 'Edit Battery');
+      await cursorClick();
+      // Open battery panel
+      openBatteryPanel();
+      await wait(500);
+      // Select Energy Shift mode
+      await moveCursorTo($('bp-mode-es'), 'Energy Shift mode');
+      await cursorClick();
+      $('bp-mode-backup').classList.remove('active');
+      $('bp-mode-es').classList.add('active');
+      flash($('bp-mode-es'));
+      await wait(400);
+      // Animate slider from 90% to 70% then back to 90%
+      await moveCursorTo($('bp-slider-thumb'), 'Adjust allocation');
+      await cursorClick();
+      await animateSlider(90, 65);
+      await wait(400);
+      await animateSlider(65, 90);
+      await wait(400);
+      // Scroll battery panel down to show load items
+      const bpEl = $('battery-panel');
+      if (!seeking) {
+        bpEl.scrollTo({ top: bpEl.scrollHeight, behavior: 'smooth' });
+        await wait(500);
+      } else {
+        bpEl.scrollTop = bpEl.scrollHeight;
+      }
+      // Check Lighting load
+      await moveCursorTo($('load-lighting'), 'Select Lighting');
+      await cursorClick();
+      $('load-lighting').classList.add('checked');
+      updateLoadTotal();
+      flash($('load-lighting').closest('.load-item'));
+      await wait(300);
+      // Check Refrigerator load
+      await moveCursorTo($('load-fridge'), 'Select Refrigerator');
+      await cursorClick();
+      $('load-fridge').classList.add('checked');
+      updateLoadTotal();
+      flash($('load-fridge').closest('.load-item'));
+      await wait(400);
+      hideCursor();
+      showPopup('Battery Configured', 'Energy Shift mode distributes 90% of battery capacity for energy arbitrage. Loads are prioritized for backup power.');
+    },
+    // 2.3 — Save battery panel, close, summary
+    async () => {
+      hidePopup();
+      await moveCursorTo($('bp-save'), 'Save battery config');
+      await cursorClick();
+      closeBatteryPanel();
+      await wait(400);
+      // Update preview values on proposal card
+      $('bat-mode-display').textContent = 'Energy Shift';
+      $('bat-es-pct').textContent = '90%';
+      $('bat-bu-pct').textContent = '10%';
+      $('bat-es-kwh').textContent = '10.35 kWh';
+      $('bat-bu-kwh').textContent = '1.15 kWh';
+      flash($('battery-box'));
+      hideCursor();
+      showPopup('Proposal Complete', 'Battery configured with Energy Shift mode. Monthly cost drops from $185 to $32. Moving to financing.');
+    }
+  ],
+
+  // STEP 3: Finance
+  3: [
+    // 3.0 — Enter finance page
+    async () => {
+      hidePopup(); goToStep(3);
+      // Reset all dropdowns
+      $('fc-outline').classList.remove('open','filled');
+      $('fc-value').className = 'mat-select-value placeholder';
+      $('fc-value').textContent = 'Select a finance company';
+      $('fc-menu').classList.remove('open');
+      $('fo-outline').classList.remove('open','filled');
+      $('fo-value').className = 'mat-select-value placeholder';
+      $('fo-value').textContent = 'Select a finance option';
+      $('fo-menu').classList.remove('open');
+      $('fp-outline').classList.remove('open','filled');
+      $('fp-value').className = 'mat-select-value placeholder';
+      $('fp-value').textContent = 'Pricing auto-fills after selecting option';
+      $('finance-specs').innerHTML = '';
+      $('fi-badge').textContent = '\u2014';
+      showPopup('Step 4: Financing', 'Choose from integrated finance partners. Pricing updates instantly.');
+    },
+    // 3.1 — Open Finance Company dropdown, show options
+    async () => {
+      hidePopup();
+      await moveCursorTo($('fc-outline'), 'Select finance company');
+      await cursorClick();
+      $('fc-outline').classList.add('open');
+      $('fc-menu').classList.add('open');
+      await wait(600);
+      showPopup('Finance Companies', 'Cash, LightReach, Local Financer, and GoodLeap TPO are available.');
+    },
+    // 3.2 — Select GoodLeap
+    async () => {
+      hidePopup();
+      const glItem = $('fc-goodleap');
+      await moveCursorTo(glItem, 'Select GoodLeap TPO');
+      glItem.classList.add('selecting');
+      await wait(300);
+      await cursorClick();
+      glItem.classList.remove('selecting');
+      glItem.classList.add('selected');
+      $('fc-menu').classList.remove('open');
+      $('fc-outline').classList.remove('open');
+      $('fc-outline').classList.add('filled');
+      $('fc-value').className = 'mat-select-value';
+      $('fc-value').innerHTML = '<img src="https://crm.solentrex.com/assets/image/company-logos/goodleap.png" alt="GoodLeap" style="height:22px;border-radius:3px;" onerror="this.style.display=\'none\'"><span style="font-weight:600;">Goodleap - TPO</span>';
+      flash($('fc-outline'));
+      $('fi-badge').textContent = 'GoodLeap';
+      flash($('fi-badge').parentElement);
+      hideCursor();
+      showPopup('GoodLeap Selected', 'GoodLeap TPO selected. Finance options are now available.');
+    },
+    // 3.3 — Open Finance Option dropdown
+    async () => {
+      hidePopup();
+      await moveCursorTo($('fo-outline'), 'Select finance option');
+      await cursorClick();
+      $('fo-outline').classList.add('open');
+      $('fo-menu').classList.add('open');
+      await wait(600);
+      showPopup('Finance Options', '5 finance options available — Leases, PPAs, and Loans with different terms and rates.');
+    },
+    // 3.4 — Select first option (25yr 1.99% Lease)
+    async () => {
+      hidePopup();
+      const firstOpt = $('fo-menu').querySelector('.mat-select-item');
+      await moveCursorTo(firstOpt, 'Select 25yr Lease');
+      firstOpt.classList.add('selecting');
+      await wait(300);
+      await cursorClick();
+      firstOpt.classList.remove('selecting');
+      firstOpt.classList.add('selected');
+      $('fo-menu').classList.remove('open');
+      $('fo-outline').classList.remove('open');
+      $('fo-outline').classList.add('filled');
+      $('fo-value').className = 'mat-select-value';
+      $('fo-value').innerHTML = '<div><div style="font-weight:600;font-size:13px;">'+D.financeOption+'</div><div style="font-size:10px;color:#72767a;">'+D.financeDetails+' | DF: 0.00%</div></div>';
+      flash($('fo-outline'));
+      await wait(300);
+      // Auto-fill pricing
+      $('fp-outline').classList.add('filled');
+      $('fp-value').className = 'mat-select-value';
+      $('fp-value').innerHTML = '<span style="font-weight:600;">$2.43/W</span><span style="color:#72767a;margin:0 6px;">|</span><span style="font-weight:600;">$0.134/kWh</span><span style="color:#72767a;margin:0 6px;">|</span><span style="font-weight:600;">$159.53</span><span style="color:#72767a;margin:0 6px;">|</span><span style="font-weight:600;">$2.83/W</span>';
+      flash($('fp-outline'));
+      hideCursor();
+      // Finance details table
+      const fs=[['Escalation Rate',D.rate],['Duration','25 Years'],['Gross System Price',D.grossPrice],['Target Amount',D.grossPrice],['Purchase Price',D.purchasePrice],['Monthly Payment',D.monthly+'/Mo']];
+      $('finance-specs').innerHTML='';
+      for (const [l,v] of fs) { const li=document.createElement('li'); li.innerHTML='<span class="lbl">'+l+'</span><span class="val">'+v+'</span>'; $('finance-specs').appendChild(li); flash(li); await wait(100); }
+      showPopup('Finance Selected', 'GoodLeap TPO at $159.53/mo with 1.99% escalator. Moving to e-signature.');
+    }
+  ],
+
+  // STEP 4: E-Sign
+  4: [
+    // 4.0 — Enter e-sign, fill agreement, show signers
+    async () => {
+      hidePopup(); goToStep(4);
+      const c=D.clients[D.ci]; const i2=c.first[0]+c.last[0];
+      const repInitials = D.salesRep.split(' ').map(w=>w[0]).join('');
+      $('signer-avatar-0').textContent=repInitials; $('signer-name-0').textContent=D.salesRep;
+      $('signer-avatar-1').textContent=i2; $('signer-name-1').textContent=c.first+' '+c.last;
+      $('foot-avatar-0').textContent=repInitials; $('foot-avatar-1').textContent=i2;
+      $('sig-date').textContent=new Date().toLocaleDateString('en-US',{day:'numeric',month:'long',year:'numeric'});
+      $('sig-party-label').textContent='Sales Associate Signature';
+      // Fill agreement details
+      $('doc-owner').textContent=c.first+' '+c.last;
+      $('doc-system').textContent=D.system;
+      $('doc-panels').textContent=D.panels;
+      $('doc-panel-model').textContent=D.panelModel;
+      $('doc-inverter').textContent=D.inverter;
+      $('doc-address').textContent=D.address;
+      $('doc-finance').textContent=D.financeCompany;
+      $('doc-monthly').textContent=D.monthly+'/mo';
+      $('doc-production').textContent=D.production;
+      $('doc-offset').textContent=D.offset;
+      showPopup('Proprietary E-Signature', 'Solentrex\'s proprietary e-signature platform — no DocuSign fees or third-party integrations. Both parties sign directly in the CRM.');
+    },
+    // 4.1 — Sales rep signs
+    async () => {
+      hidePopup();
+      const repInitials = D.salesRep.split(' ').map(w=>w[0]).join('');
+      await moveCursorTo($('sig-1'), 'Sales rep signs');
+      await cursorClick();
+      $('sig-1').style.background='rgba(245,127,6,.08)';
+      $('sig-1').innerHTML='<span class="sig-badge">Signature</span><span style="padding-left:8px;font-size:14px;font-style:italic;color:#0258a8;font-weight:600;">'+D.salesRep+'</span>';
+      flash($('sig-1')); await wait(400);
+      await moveCursorTo($('sig-2'), 'Add initials');
+      await cursorClick();
+      $('sig-2').style.background='rgba(245,127,6,.08)';
+      $('sig-2').innerHTML='<span class="sig-badge">Initials</span><span style="padding-left:8px;font-size:14px;font-weight:600;color:#0258a8;">'+repInitials+'</span>';
+      flash($('sig-2'));
+      hideCursor();
+      $('signer-status-0').textContent='Signed'; $('signer-status-0').className='signer-status signed';
+      $('sign-count').textContent='1/2'; $('next-person-btn').style.opacity='1';
+      flash($('signer-0'));
+      showPopup('Sales Rep Signed', 'The sales associate has signed using Solentrex\'s proprietary e-signature. Now the homeowner signs.');
+    },
+    // 4.2 — Switch to homeowner, show their signing
+    async () => {
+      hidePopup();
+      await moveCursorTo($('next-person-btn'), 'Next person');
+      await cursorClick();
+      await wait(300);
+      $('page-num').textContent='Page 3 / 7';
+      // Reset sig fields for homeowner
+      $('sig-party-label').textContent='Homeowner Signature';
+      flash($('sig-party-label'));
+      const c=D.clients[D.ci];
+      const ownerInitials = c.first[0]+c.last[0];
+      $('sig-1').style.background=''; $('sig-1').innerHTML='<span class="sig-badge">Signature</span><span style="padding-left:8px;font-size:12px;color:#72767a;">Click here to Sign</span>';
+      $('sig-2').style.background=''; $('sig-2').innerHTML='<span class="sig-badge">Initials</span><span style="padding-left:8px;font-size:12px;color:#72767a;">Enter initials</span>';
+      hideCursor();
+      await wait(400);
+      // Homeowner signs
+      await moveCursorTo($('sig-1'), 'Homeowner signs');
+      await cursorClick();
+      $('sig-1').style.background='rgba(245,127,6,.08)';
+      $('sig-1').innerHTML='<span class="sig-badge">Signature</span><span style="padding-left:8px;font-size:14px;font-style:italic;color:#0258a8;font-weight:600;">'+c.first+' '+c.last+'</span>';
+      flash($('sig-1')); await wait(400);
+      await moveCursorTo($('sig-2'), 'Add initials');
+      await cursorClick();
+      $('sig-2').style.background='rgba(245,127,6,.08)';
+      $('sig-2').innerHTML='<span class="sig-badge">Initials</span><span style="padding-left:8px;font-size:14px;font-weight:600;color:#0258a8;">'+ownerInitials+'</span>';
+      flash($('sig-2'));
+      hideCursor();
+      $('signer-status-1').textContent='Signed'; $('signer-status-1').className='signer-status signed';
+      $('sign-count').textContent='2/2'; flash($('signer-1'));
+      $('next-person-btn').textContent='Complete'; $('next-person-btn').style.background='#28c840';
+      showPopup('Contract Complete', 'Both parties have signed on Solentrex\'s proprietary e-signature platform. The project moves to installation automatically. That\'s the full workflow — address to signed contract.');
+    }
+  ]
+};
+
+// ==========================================
+// PLAYBACK ENGINE
+// ==========================================
+
+let queue = [];
+let queueIdx = 0;
+let playing = false;
+let busy = false;
+
+function buildQueue() {
+  queue = [];
+  for (let s = 0; s < 5; s++) { for (const fn of sequences[s]) queue.push(fn); }
+}
+
+function getMajorStep() {
+  let count = 0;
+  for (let s = 0; s < 5; s++) {
+    count += sequences[s].length;
+    if (queueIdx < count) return s;
+  }
+  return 4;
+}
+
+
+// --- Fake cursor ---
+const cursor = $('fake-cursor');
+const ring = $('cursor-ring');
+
+function moveCursorTo(el, tip) {
+  if (seeking) return Promise.resolve();
+  return new Promise(resolve => {
+    if (!el) { resolve(); return; }
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width * 0.4;
+    const y = r.top + r.height * 0.4;
+    cursor.style.transition = 'left .4s ease, top .4s ease';
+    cursor.style.left = x + 'px';
+    cursor.style.top = y + 'px';
+    cursor.classList.add('visible');
+    if (tip) {
+      cursorTip.textContent = tip;
+      cursorTip.style.transition = 'opacity .25s, left .4s ease, top .4s ease';
+      cursorTip.style.left = (x - 40) + 'px';
+      cursorTip.style.top = (y - 44) + 'px';
+      cursorTip.classList.add('visible');
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(hideCursorTip, 3500);
+    }
+    trackedTimeout(resolve, 450);
+  });
+}
+
+// Percentage-based click targets for design panel enable/disable steps
+const panelClicks = {
+  dis1: { x: 0.63, y: 0.67 },
+  dis2: { x: 0.65, y: 0.68 },
+  dis3: { x: 0.58, y: 0.61 },
+  en1:  { x: 0.36, y: 0.50 },
+  en2:  { x: 0.40, y: 0.51 }
+};
+
+function getContainedImageRect(container) {
+  // Calculate the actual rendered image area inside an object-fit:contain container
+  const r = container.getBoundingClientRect();
+  const img = container.querySelector('img');
+  if (!img || !img.naturalWidth || !img.naturalHeight) return r;
+  const imgRatio = img.naturalWidth / img.naturalHeight;
+  const boxRatio = r.width / r.height;
+  let w, h;
+  if (imgRatio > boxRatio) {
+    // Image is wider than box — pillarbox top/bottom
+    w = r.width;
+    h = r.width / imgRatio;
+  } else {
+    // Image is taller than box — letterbox left/right
+    h = r.height;
+    w = r.height * imgRatio;
+  }
+  return {
+    left: r.left + (r.width - w) / 2,
+    top: r.top + (r.height - h) / 2,
+    width: w,
+    height: h
+  };
+}
+
+function moveCursorToCanvas(xPct, yPct, tip) {
+  if (seeking) return Promise.resolve();
+  return new Promise(resolve => {
+    const canvas = $('design-canvas');
+    const r = getContainedImageRect(canvas);
+    const x = r.left + r.width * xPct;
+    const y = r.top + r.height * yPct;
+    cursor.style.transition = 'left .4s ease, top .4s ease';
+    cursor.style.left = x + 'px';
+    cursor.style.top = y + 'px';
+    cursor.classList.add('visible');
+    if (tip) {
+      cursorTip.textContent = tip;
+      cursorTip.style.transition = 'opacity .25s, left .4s ease, top .4s ease';
+      cursorTip.style.left = (x - 40) + 'px';
+      cursorTip.style.top = (y - 44) + 'px';
+      cursorTip.classList.add('visible');
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(hideCursorTip, 3500);
+    }
+    trackedTimeout(resolve, 450);
+  });
+}
+
+function cursorClick() {
+  if (seeking) return Promise.resolve();
+  return new Promise(resolve => {
+    cursor.classList.add('clicking');
+    const r = cursor.getBoundingClientRect();
+    ring.style.left = (r.left + 10) + 'px';
+    ring.style.top = (r.top + 10) + 'px';
+    ring.className = 'cursor-ring pop';
+    trackedTimeout(() => { ring.className = 'cursor-ring fade'; cursor.classList.remove('clicking'); }, 200);
+    trackedTimeout(() => { ring.className = 'cursor-ring'; resolve(); }, 400);
+  });
+}
+
+function hideCursor() {
+  if (!seeking) cursor.classList.remove('visible');
+  hideCursorTip();
+}
+
+// --- Cursor tooltip (shows above cursor, out of the way) ---
+const cursorTip = $('cursor-tip');
+let tipTimer = null;
+function showCursorTip(text) {
+  if (seeking) return;
+  cursorTip.textContent = text;
+  cursorTip.classList.add('visible');
+  // Position above cursor
+  const cr = cursor.getBoundingClientRect();
+  cursorTip.style.left = (cr.left - 20) + 'px';
+  cursorTip.style.top = (cr.top - 40) + 'px';
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(hideCursorTip, 3000);
+}
+function updateCursorTipPos() {
+  if (!cursorTip.classList.contains('visible')) return;
+  const cr = cursor.getBoundingClientRect();
+  cursorTip.style.left = (cr.left - 20) + 'px';
+  cursorTip.style.top = (cr.top - 40) + 'px';
+}
+function hideCursorTip() { cursorTip.classList.remove('visible'); clearTimeout(tipTimer); }
+
+// --- Design toolbar button helpers ---
+function setToolBtn(id, active) {
+  const btn = $(id);
+  const img = $(id + '-img');
+  if (!btn || !img) return;
+  if (active) {
+    btn.classList.add('active');
+    if (id === 'tb-seg') img.src = 'https://crm.solentrex.com/assets/image/enable-segment.svg';
+    if (id === 'tb-tree') img.src = 'https://crm.solentrex.com/assets/image/tree-icon-selected.svg';
+    if (id === 'tb-irr') img.src = 'https://crm.solentrex.com/assets/image/slri-2active.svg';
+  } else {
+    btn.classList.remove('active');
+    if (id === 'tb-seg') img.src = 'https://crm.solentrex.com/assets/image/disable-segment.svg';
+    if (id === 'tb-tree') img.src = 'https://crm.solentrex.com/assets/image/tree-btn-design.svg';
+    if (id === 'tb-irr') img.src = 'https://crm.solentrex.com/assets/image/slri-2.svg';
+  }
+}
+function resetToolBtns() { setToolBtn('tb-seg', false); setToolBtn('tb-tree', false); setToolBtn('tb-irr', false); }
+
+// --- Battery panel helpers ---
+// Duck curve data (from dev-handoff module)
+const DC_DEMAND = [0.6,0.5,0.5,0.5,0.6,0.8, 1.5,2.5,2.0,1.5,1.2,1.0, 0.9,0.9,1.0,1.2,1.5,2.5, 3.5,4.0,3.2,2.0,1.2,0.8];
+const DC_SOLAR  = [0,0,0,0,0,0.3, 1.2,3.0,5.2,6.8,7.8,8.2, 8.5,8.0,7.0,5.5,3.5,1.2, 0.3,0,0,0,0,0];
+const DC_HOURS = ['12a','1a','2a','3a','4a','5a','6a','7a','8a','9a','10a','11a','12p','1p','2p','3p','4p','5p','6p','7p','8p','9p','10p','11p'];
+const AC_POWER_KW = 11.5; // Powerwall 3 rated AC power for load prioritization
+let dcChart = null;
+let dcShiftPct = 90; // energy shift percent (our slider is energy-shift-based, not backup-based)
+
+function initDuckCurve() {
+  const canvas = $('dcChart');
+  if (!canvas || dcChart) return;
+  dcChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: DC_HOURS,
+      datasets: [
+        { label:'Demand', data:DC_DEMAND.slice(), borderColor:'#3b82f6', backgroundColor:'transparent', borderWidth:2, fill:false, tension:0.4, pointRadius:0, pointHoverRadius:4, order:1 },
+        { label:'Solar', data:DC_SOLAR.slice(), borderColor:'#f59e0b', backgroundColor:'transparent', borderWidth:2, fill:false, tension:0.4, pointRadius:0, pointHoverRadius:4, order:2 },
+        { label:'Grid', data:new Array(24).fill(0), borderColor:'transparent', backgroundColor:'rgba(239,68,68,0.15)', borderWidth:0, fill:'origin', tension:0.4, pointRadius:0, order:0 },
+        { label:'Solar+Batt', data:new Array(24).fill(null), borderColor:'#22c55e', backgroundColor:'transparent', borderWidth:2, borderDash:[5,3], fill:false, tension:0.4, pointRadius:0, pointHoverRadius:4, order:3 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'#1f2937', titleFont:{size:11}, bodyFont:{size:10}, padding:8, cornerRadius:6, callbacks:{ label:function(c){ if(c.dataset.label==='Grid') return c.parsed.y>0.01?'Grid: '+c.parsed.y.toFixed(2)+' kW':null; var v=c.parsed.y; if(v===null||v===undefined)return null; return c.dataset.label+': '+v.toFixed(2)+' kW'; } } } },
+      scales:{ x:{ grid:{display:false}, ticks:{font:{size:9},color:'#9ca3af',maxRotation:0} }, y:{ title:{display:true,text:'kW',font:{size:10,weight:'600'},color:'#9ca3af'}, grid:{color:'rgba(0,0,0,0.04)'}, ticks:{font:{size:9},color:'#9ca3af'}, beginAtZero:true } }
+    }
+  });
+}
+
+function dcSim() {
+  if (!dcChart) return;
+  const cap = 13.50;
+  const sc = cap * (dcShiftPct / 100);
+  const grid = new Array(24).fill(0);
+  const bl = new Array(24).fill(null);
+  let soc = 0;
+  const maxRate = 5;
+
+  // Pass 1: charge from excess solar, discharge to meet demand
+  for (let h = 0; h < 24; h++) {
+    const net = DC_SOLAR[h] - DC_DEMAND[h];
+    if (net > 0) {
+      const charge = Math.min(net, sc - soc, maxRate);
+      soc += charge;
+      grid[h] = 0;
+      bl[h] = DC_DEMAND[h];
+    } else {
+      const deficit = -net;
+      const discharge = Math.min(deficit, soc, maxRate);
+      soc -= discharge;
+      grid[h] = deficit - discharge;
+      bl[h] = DC_SOLAR[h] + discharge;
+    }
+  }
+  // Pass 2: use remaining charge to offset grid
+  if (soc > 0.1) {
+    for (let h2 = 0; h2 < 24; h2++) {
+      if (soc <= 0.01) break;
+      if (grid[h2] > 0.01) {
+        const extra = Math.min(grid[h2], soc, maxRate);
+        soc -= extra;
+        grid[h2] -= extra;
+        bl[h2] = (bl[h2] || DC_SOLAR[h2]) + extra;
+      }
+    }
+  }
+
+  dcChart.data.datasets[2].data = grid;
+  dcChart.data.datasets[3].data = bl;
+  dcChart.update('none');
+
+  // Stats
+  let totalDemand = 0, totalGrid = 0;
+  for (let j = 0; j < 24; j++) { totalDemand += DC_DEMAND[j]; totalGrid += grid[j]; }
+  const selfPowered = Math.round(((totalDemand - totalGrid) / totalDemand) * 100);
+  const monthlyBill = Math.round(totalGrid * 0.20 * 30);
+  $('dcStatGrid').textContent = totalGrid.toFixed(1);
+  $('dcStatSelf').textContent = selfPowered + '%';
+  $('dcStatBill').textContent = '$' + monthlyBill;
+}
+
+function openBatteryPanel() {
+  $('battery-panel').classList.add('open');
+  $('bp-backdrop').classList.add('open');
+  // Init chart if not yet created, then run simulation
+  setTimeout(() => { initDuckCurve(); dcSim(); }, 100);
+}
+function closeBatteryPanel() {
+  $('battery-panel').classList.remove('open');
+  $('bp-backdrop').classList.remove('open');
+}
+
+function animateSlider(fromPct, toPct) {
+  if (seeking) {
+    setBatterySlider(toPct);
+    return Promise.resolve();
+  }
+  return new Promise(resolve => {
+    const steps = 20;
+    const diff = toPct - fromPct;
+    let i = 0;
+    const iv = setInterval(() => {
+      i++;
+      const pct = fromPct + (diff * i / steps);
+      setBatterySlider(Math.round(pct));
+      if (i >= steps) { clearInterval(iv); resolve(); }
+    }, 30);
+  });
+}
+
+function setBatterySlider(esPct) {
+  const buPct = 100 - esPct;
+  const cap = 13.50;
+  const esKwh = (cap * esPct / 100).toFixed(2);
+  const buKwh = (cap * buPct / 100).toFixed(2);
+  // Load prioritization max = AC_POWER_KW * backupPct / 100
+  const loadMaxKw = (AC_POWER_KW * buPct / 100).toFixed(2);
+  dcShiftPct = esPct;
+  // Panel slider
+  $('bp-slider-fill').style.width = esPct + '%';
+  $('bp-slider-thumb').style.left = esPct + '%';
+  $('bp-es-pct').textContent = esPct + '%';
+  $('bp-bu-pct').textContent = buPct + '%';
+  $('bp-es-kwh').textContent = esKwh + ' kWh';
+  $('bp-bu-kwh').textContent = buKwh + ' kWh';
+  $('bp-load-max').textContent = loadMaxKw + ' kW';
+  // Preview slider
+  $('bat-slider-fill').style.width = esPct + '%';
+  $('bat-slider-thumb').style.left = esPct + '%';
+  $('bat-es-pct').textContent = esPct + '%';
+  $('bat-bu-pct').textContent = buPct + '%';
+  $('bat-es-kwh').textContent = esKwh + ' kWh';
+  $('bat-bu-kwh').textContent = buKwh + ' kWh';
+  // Update duck curve simulation
+  dcSim();
+}
+
+function updateLoadTotal() {
+  let total = 0;
+  $$('#bp-loads .load-cb.checked').forEach(cb => {
+    const kw = parseFloat(cb.closest('.load-item').dataset.kw);
+    if (!isNaN(kw)) total += kw;
+  });
+  $('bp-load-total').textContent = total.toFixed(2) + ' kW';
+}
+
+function resetBatteryPanel() {
+  closeBatteryPanel();
+  $('battery-box').style.display = 'none';
+  $('bp-mode-backup').classList.remove('active');
+  $('bp-mode-es').classList.add('active');
+  // Destroy chart so it re-inits fresh next time
+  if (dcChart) { dcChart.destroy(); dcChart = null; }
+  dcShiftPct = 90;
+  setBatterySlider(90);
+  $$('#bp-loads .load-cb').forEach(cb => cb.classList.remove('checked'));
+  $('bp-load-total').textContent = '0.00 kW';
+  $('bat-mode-display').textContent = 'Energy Shift';
+}
+
+// --- Run one step ---
+async function runStep() {
+  if (busy || queueIdx >= queue.length) return;
+  busy = true;
+  await queue[queueIdx]();
+  queueIdx++;
+  busy = false;
+}
+
+// --- Auto-play loop (continuous) ---
+async function playLoop() {
+  const myToken = abortToken;
+  while (playing && abortToken === myToken) {
+    if (queueIdx >= queue.length) {
+      // Loop: reset and start over
+      hideCursor(); hidePopup();
+      await wait(2000);
+      if (abortToken !== myToken) return;
+      resetDemoState();
+      playing = true; // re-set after resetDemoState clears it
+      buildQueue();
+      queueIdx = 0;
+      await wait(500);
+      if (abortToken !== myToken) return;
+    }
+    await runStep();
+    if (abortToken !== myToken) return;
+    if (queueIdx < queue.length && playing) await wait(1200);
+  }
+}
+
+function resetDemoState() {
+  clearAllTimers();
+  queueIdx = 0; playing = false;
+  goToStep(0);
+  $('address-input').innerHTML=''; $('tile-solar').classList.remove('active');
+  $('client-select').innerHTML=''; $('client-dropdown').classList.remove('open');
+  $$('.f-dropdown-item').forEach(i=>i.classList.remove('selecting'));
+  ['fname','lname','email','phone'].forEach(id=>{$(id).innerHTML='';$(id).classList.remove('typing');});
+  $('utility').innerHTML=''; $('tariff').innerHTML='';
+  $('bill-upload').style.display='none'; $('upload-area').style.display='';
+  $('side-address').textContent='Please add address'; $('side-address').style.color='#72767a'; $('side-address').style.fontWeight='';
+  $('map-banner').style.display=''; $('map-area').style.display='none'; $('map-tabs').style.display='none';
+  $('building-specs').innerHTML=''; $('inverter-specs').innerHTML=''; $('offset-val').textContent='\u2014'; $('design-address').textContent='';
+  $('design-img-a').src='img/demo-satellite.png'; $('design-img-a').style.opacity='1';
+  $('design-img-b').src=''; $('design-img-b').style.opacity='0'; designShowingA = true;
+  resetToolBtns();
+  $('proposal-name').textContent=''; $('proposal-address').textContent='';
+  ['p-consumption','p-system','p-offset','p-savings'].forEach(id=>$(id).textContent='\u2014');
+  $('bar-before').style.width='0'; $('bar-after').style.width='0';
+  $('cost-before').textContent='\u2014'; $('cost-after').textContent='\u2014'; $('proposal-specs').innerHTML='';
+  // Finance reset
+  $('fc-outline').classList.remove('open','filled'); $('fc-value').className='mat-select-value placeholder'; $('fc-value').textContent='Select a finance company'; $('fc-menu').classList.remove('open');
+  $$('#fc-menu .mat-select-item').forEach(i => i.classList.remove('selected','selecting'));
+  $('fo-outline').classList.remove('open','filled'); $('fo-value').className='mat-select-value placeholder'; $('fo-value').textContent='Select a finance option'; $('fo-menu').classList.remove('open');
+  $$('#fo-menu .mat-select-item').forEach(i => i.classList.remove('selected','selecting'));
+  $('fp-outline').classList.remove('open','filled'); $('fp-value').className='mat-select-value placeholder'; $('fp-value').textContent='Pricing auto-fills after selecting option';
+  $('finance-specs').innerHTML=''; $('fi-badge').textContent='\u2014';
+  // Battery reset
+  resetBatteryPanel();
+  // E-sign reset
+  ['signer-avatar-0','signer-avatar-1','signer-name-0','signer-name-1','foot-avatar-0','foot-avatar-1'].forEach(id=>$(id).textContent='\u2014');
+  $('signer-status-0').textContent='Pending'; $('signer-status-0').className='signer-status pending';
+  $('signer-status-1').textContent='Pending'; $('signer-status-1').className='signer-status pending';
+  $('sign-count').textContent='0/2';
+  $('next-person-btn').textContent='Next Person'; $('next-person-btn').style.opacity='.5'; $('next-person-btn').style.background='#f57f06';
+  $('sig-1').innerHTML='<span class="sig-badge">Signature</span><span style="padding-left:8px;font-size:12px;color:#72767a;">Click here to Sign</span>'; $('sig-1').style.background='';
+  $('sig-2').innerHTML='<span class="sig-badge">Initials</span><span style="padding-left:8px;font-size:12px;color:#72767a;">Enter initials</span>'; $('sig-2').style.background='';
+  $('sig-date').textContent=''; $('page-num').textContent='Page 1 / 7';
+  $('sig-party-label').textContent='Sales Associate Signature';
+  // Agreement fields reset
+  ['doc-owner','doc-system','doc-panels','doc-panel-model','doc-inverter','doc-address','doc-finance','doc-monthly','doc-production','doc-offset'].forEach(id=>{const el=$(id);if(el)el.textContent='___';});
+}
+
+// --- Init: auto-play on load ---
+buildQueue();
+
+// --- Clickable stepper: jump to any step ---
+let seekingTo = null; // prevents re-entrant seeks
+async function seekToStep(targetStep) {
+  // Abort any running animation immediately
+  abortToken++;
+  playing = false;
+  clearAllTimers();
+  busy = false;
+  hideCursor(); hidePopup();
+
+  // Wait a tick for any in-flight async steps to bail out
+  await new Promise(r => setTimeout(r, 10));
+
+  resetDemoState();
+  buildQueue();
+
+  // Calculate queue index for start of target step
+  let targetIdx = 0;
+  for (let s = 0; s < targetStep; s++) {
+    targetIdx += sequences[s].length;
+  }
+
+  // Fast-forward through all previous steps silently
+  const myToken = abortToken;
+  if (targetIdx > 0) {
+    seeking = true;
+    for (let i = 0; i < targetIdx; i++) {
+      if (abortToken !== myToken) return; // another seek interrupted us
+      await queue[i]();
+    }
+    seeking = false;
+  }
+  if (abortToken !== myToken) return; // another seek interrupted us
+  queueIdx = targetIdx;
+
+  // Resume playback from this step
+  playing = true;
+  playLoop();
+}
+
+$$('.crm-step').forEach(step => {
+  step.addEventListener('click', () => {
+    const s = parseInt(step.dataset.step);
+    if (!isNaN(s)) seekToStep(s);
+  });
+});
+
+// Auto-start after short delay
+setTimeout(() => { playing = true; playLoop(); }, 800);
+</script>
+</body>
+</html>
