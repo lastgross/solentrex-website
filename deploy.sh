@@ -7,32 +7,6 @@ set -euo pipefail
 BUILD_DIR="hubspot-build"
 HUBSPOT_DIR="solentrex-website"
 
-# Page slug mapping: filename → HubSpot slug
-declare -A SLUGS=(
-  [index.html]="/home"
-  [platform.html]="/platform"
-  [integrations.html]="/integrations"
-  [partners.html]="/partners"
-  [about.html]="/about"
-  [demo.html]="/demo"
-  [privacy.html]="/privacy"
-  [terms.html]="/terms"
-  [crm-demo.html]="/crm-demo"
-)
-
-# HubSpot template labels
-declare -A LABELS=(
-  [index.html]="Home"
-  [platform.html]="Platform"
-  [integrations.html]="Integrations"
-  [partners.html]="Partners"
-  [about.html]="About"
-  [demo.html]="Demo"
-  [privacy.html]="Privacy Policy"
-  [terms.html]="Terms of Use"
-  [crm-demo.html]="CRM Demo"
-)
-
 # Files to convert (default: all pages)
 if [ $# -gt 0 ]; then
   FILES=("$@")
@@ -46,58 +20,70 @@ mkdir -p "$BUILD_DIR"
 
 echo "Converting ${#FILES[@]} files to HubL format..."
 
-for file in "${FILES[@]}"; do
-  if [ ! -f "$file" ]; then
-    echo "  SKIP: $file (not found)"
-    continue
-  fi
+# Use node for reliable multi-match-per-line replacements
+node -e "
+const fs = require('fs');
+const path = require('path');
+const dir = '$HUBSPOT_DIR';
+const buildDir = '$BUILD_DIR';
 
-  label="${LABELS[$file]:-$file}"
-  echo "  Converting: $file → $BUILD_DIR/$file (label: $label)"
+const labels = {
+  'index.html': 'Home',
+  'platform.html': 'Platform',
+  'integrations.html': 'Integrations',
+  'partners.html': 'Partners',
+  'about.html': 'About',
+  'demo.html': 'Demo',
+  'privacy.html': 'Privacy Policy',
+  'terms.html': 'Terms of Use',
+  'crm-demo.html': 'CRM Demo'
+};
 
-  # Start with template annotation
-  {
-    echo "<!--"
-    echo "  templateType: page"
-    echo "  isAvailableForNewContent: true"
-    echo "  label: $label"
-    echo "-->"
-  } > "$BUILD_DIR/$file"
+const linkMap = {
+  'index.html': '/home',
+  'platform.html': '/platform',
+  'integrations.html': '/integrations',
+  'partners.html': '/partners',
+  'about.html': '/about',
+  'demo.html': '/demo',
+  'privacy.html': '/privacy',
+  'terms.html': '/terms',
+  'platform.html#demo': '/platform#demo'
+};
 
-  # Process the HTML content
-  sed \
-    -e 's|href="index\.html"|href="/home"|g' \
-    -e 's|href="platform\.html"|href="/platform"|g' \
-    -e 's|href="integrations\.html"|href="/integrations"|g' \
-    -e 's|href="partners\.html"|href="/partners"|g' \
-    -e 's|href="about\.html"|href="/about"|g' \
-    -e 's|href="demo\.html"|href="/demo"|g' \
-    -e 's|href="privacy\.html"|href="/privacy"|g' \
-    -e 's|href="terms\.html"|href="/terms"|g' \
-    -e 's|href="platform\.html#demo"|href="/platform#demo"|g' \
-    -e "s|src=\"crm-demo\.html\"|src=\"/crm-demo\"|g" \
-    -e "s|src=\"assets/|src=\"{{ get_asset_url('$HUBSPOT_DIR/assets/|g" \
-    -e "s|src=\"img/|src=\"{{ get_asset_url('$HUBSPOT_DIR/img/|g" \
-    -e "s|src=\"js/|src=\"{{ get_asset_url('$HUBSPOT_DIR/js/|g" \
-    -e "s|href=\"css/|href=\"{{ get_asset_url('$HUBSPOT_DIR/css/|g" \
-    -e "s|href=\"assets/|href=\"{{ get_asset_url('$HUBSPOT_DIR/assets/|g" \
-    -e "s|{{ get_asset_url('$HUBSPOT_DIR/\([^']*\)'|{{ get_asset_url('$HUBSPOT_DIR/\1') }}|g" \
-    "$file" >> "$BUILD_DIR/$file"
+const files = process.argv.slice(1);
+for (const file of files) {
+  if (!fs.existsSync(file)) { console.log('  SKIP: ' + file); continue; }
+  const label = labels[file] || file;
+  console.log('  Converting: ' + file + ' (label: ' + label + ')');
 
-  # Fix get_asset_url — the sed above adds the opening but we need to close each one properly
-  # The pattern creates: {{ get_asset_url('solentrex-website/path/to/file.ext' ...
-  # We need them to be: {{ get_asset_url('solentrex-website/path/to/file.ext') }}
-  # Re-process to fix any remaining unclosed get_asset_url patterns
-  sed -i \
-    -e "s|{{ get_asset_url('${HUBSPOT_DIR}/\([^'\"]*\)\"|{{ get_asset_url('${HUBSPOT_DIR}/\1') }}\"|g" \
-    "$BUILD_DIR/$file"
+  let html = fs.readFileSync(file, 'utf8');
 
-  # Add standard_header_includes after first <head> tag (on the line after <head>)
-  sed -i '/<head>/a\    {{ standard_header_includes }}' "$BUILD_DIR/$file"
+  // Convert page links: href=\"page.html\" → href=\"/slug\"
+  for (const [from, to] of Object.entries(linkMap)) {
+    html = html.split('href=\"' + from + '\"').join('href=\"' + to + '\"');
+  }
 
-  # Add standard_footer_includes before </html>
-  sed -i 's|</html>|{{ standard_footer_includes }}\n</html>|' "$BUILD_DIR/$file"
-done
+  // Convert iframe src for crm-demo
+  html = html.split('src=\"crm-demo.html\"').join('src=\"/crm-demo\"');
+
+  // Convert asset paths to get_asset_url
+  // Match src=\"(assets/...|img/...|js/...)\" and href=\"(css/...|assets/...)\"
+  html = html.replace(/src=\"((?:assets|img|js)\/[^\"]+)\"/g, 'src=\"{{ get_asset_url(\\'' + dir + '/\$1\\') }}\"');
+  html = html.replace(/href=\"((?:css|assets)\/[^\"]+)\"/g, 'href=\"{{ get_asset_url(\\'' + dir + '/\$1\\') }}\"');
+
+  // Add HubL template annotation header
+  const header = '<!--\\n  templateType: page\\n  isAvailableForNewContent: true\\n  label: ' + label + '\\n-->\\n';
+
+  // Add standard_header_includes after <head>
+  html = html.replace('<head>', '<head>\\n    {{ standard_header_includes }}');
+
+  // Add standard_footer_includes before </html>
+  html = html.replace('</html>', '{{ standard_footer_includes }}\\n</html>');
+
+  fs.writeFileSync(path.join(buildDir, file), header + html);
+}
+" "${FILES[@]}"
 
 echo ""
 echo "Build complete. Files in $BUILD_DIR/"
@@ -111,7 +97,7 @@ if command -v hs &> /dev/null; then
   echo "  Uploading assets..."
   for dir in css js assets img; do
     if [ -d "$dir" ]; then
-      hs upload "$dir" "$HUBSPOT_DIR/$dir" 2>/dev/null || echo "    Warning: $dir upload may have had issues"
+      hs cms upload "$dir" "$HUBSPOT_DIR/$dir" 2>&1 | tail -1
     fi
   done
 
@@ -119,7 +105,7 @@ if command -v hs &> /dev/null; then
   echo "  Uploading templates..."
   for file in "${FILES[@]}"; do
     if [ -f "$BUILD_DIR/$file" ]; then
-      hs upload "$BUILD_DIR/$file" "$HUBSPOT_DIR/$file" 2>/dev/null && echo "    Uploaded: $file" || echo "    Warning: $file upload may have had issues"
+      hs cms upload "$BUILD_DIR/$file" "$HUBSPOT_DIR/$file" 2>&1 | tail -1
     fi
   done
 
@@ -127,12 +113,12 @@ if command -v hs &> /dev/null; then
   echo "Upload complete. Remember to publish/republish pages in HubSpot."
 else
   echo "HubSpot CLI (hs) not found. To upload manually:"
-  echo "  hs upload css $HUBSPOT_DIR/css"
-  echo "  hs upload js $HUBSPOT_DIR/js"
-  echo "  hs upload assets $HUBSPOT_DIR/assets"
-  echo "  hs upload img $HUBSPOT_DIR/img"
+  echo "  hs cms upload css $HUBSPOT_DIR/css"
+  echo "  hs cms upload js $HUBSPOT_DIR/js"
+  echo "  hs cms upload assets $HUBSPOT_DIR/assets"
+  echo "  hs cms upload img $HUBSPOT_DIR/img"
   for file in "${FILES[@]}"; do
-    echo "  hs upload $BUILD_DIR/$file $HUBSPOT_DIR/$file"
+    echo "  hs cms upload $BUILD_DIR/$file $HUBSPOT_DIR/$file"
   done
 fi
 

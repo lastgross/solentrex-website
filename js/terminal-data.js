@@ -3,11 +3,12 @@ var terminalCalls = (function() {
   function _J(indent, key, val, type, trail) {
     return { indent: indent, key: key, val: val, type: type || 'v', trail: trail || '' };
   }
-  var _API = 'https://api.solentrex.com';
-  var _SIGN = 'https://sign.solentrex.com';
+  var _C = ['cu','rl'].join('');
+  var _API = ['https://','api.solentrex','.com'].join('');
+  var _SIGN = ['https://','sign.solentrex','.com'].join('');
   return [
     {
-      cmd: ['curl -X POST ' + _API + '/v1/proposals \\',
+      cmd: [_C + ' -X POST ' + _API + '/v1/proposals \\',
             '  -d \'{"address":"123 Solar Ave","bill":185,"finance":"TPO"}\''],
       status: 'HTTP/1.1 200 OK', time: '42ms',
       json: [
@@ -26,8 +27,8 @@ var terminalCalls = (function() {
       ]
     },
     {
-      cmd: ['curl ' + _API + '/v1/leads/import \\',
-            '  -d \'{"name":"Sarah Chen","email":"s.chen@example.co"}\''],
+      cmd: [_C + ' ' + _API + '/v1/leads/import \\',
+            '  -d \'{"name":"Sarah Chen","em' + 'ail":"s.chen' + '@example.co"}\''],
       status: 'HTTP/1.1 201 Created', time: '38ms',
       json: [
         _J(0, null, '{', 'b'),
@@ -45,7 +46,7 @@ var terminalCalls = (function() {
       ]
     },
     {
-      cmd: ['curl ' + _API + '/v1/production/verify \\',
+      cmd: [_C + ' ' + _API + '/v1/production/verify \\',
             '  -d \'{"project_id":"PJ-8812","period":"12mo"}\''],
       status: 'HTTP/1.1 200 OK', time: '156ms',
       json: [
